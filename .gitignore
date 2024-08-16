@@ -1,0 +1,9 @@
+*.os
+*.o
+*.exe
+*.out
+
+*.zip
+*.cache
+
+vgcore.*
