@@ -53,6 +53,6 @@ int main() {
 	UpdateList::staticLayer(MAP);
 	UpdateList::staticLayer(INPUT);
 
-	UpdateList::startEngine("Circuit Constructor");
+	UpdateList::startEngine("Climbing Blocks");
 	return 0;
 }

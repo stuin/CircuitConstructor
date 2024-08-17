@@ -13,6 +13,14 @@ public:
 		sf::Vector2f velocity = gravityVelocity(pushDirection * 8.0f, time);
 		setPosition(getPosition() + velocity);
 
+		int floor = collision.getTile(getPosition() + sf::Vector2f(0, getSize().x/2));
+		if(floor == SLOPELEFT)
+			setRotation(-40);
+		else if(floor == SLOPERIGHT)
+			setRotation(40);
+		else
+			setRotation(0);
+
 		pushDirection = sf::Vector2f(0,0);
 	}
 

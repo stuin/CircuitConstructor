@@ -1,11 +1,11 @@
 #include "Skyrmion/TileMap.hpp"
 
 class GravityNode : public Node {
-	Indexer collision;
 	float jumpTime = 0;
 	float verticalSpeed = 0;
 
 public:
+	Indexer collision;
 	bool blocked = false;
 	std::vector<Node *> colliding;
 
