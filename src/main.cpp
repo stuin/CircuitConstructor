@@ -26,9 +26,9 @@ int main() {
 	UpdateList::addNode(&background);
 
 	//Load base tile maps
-	GridMaker grid("res/start_area.txt");
-	TileMap world(&worldTexture, 16, 16, new Indexer(&grid, displayIndex, 0), MAP);
-	Indexer collisionMap(&grid, collisionIndex, 0, 16, 16);
+	GridMaker grid("res/world/start_area.txt");
+	TileMap world(&worldTexture, 32, 32, new Indexer(&grid, displayIndex, 0), MAP);
+	Indexer collisionMap(&grid, collisionIndex, 0, 32, 32);
 	UpdateList::addNode(&world);
 
 	//Player
@@ -40,11 +40,10 @@ int main() {
 	//Place player and boxes
 	collisionMap.mapGrid([&player, &crateTexture, &collisionMap](char c, sf::Vector2f pos) {
 		if(c == 'P') {
-			player.setPosition(pos + sf::Vector2f(8, 8));
-		} if(c == 'b') {
-			MovableBox *b = new MovableBox(collisionMap, sf::Vector2i(16, 16));
+			player.setPosition(pos + sf::Vector2f(16, 0));
+		} if(c == 'w') {
+			MovableBox *b = new MovableBox(collisionMap, pos + sf::Vector2f(16, 16), sf::Vector2i(32, 32));
 			b->setTexture(crateTexture);
-			b->setPosition(pos + sf::Vector2f(8, 8));
 			UpdateList::addNode(b);
 		}
 	});
