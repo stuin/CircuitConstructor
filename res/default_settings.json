@@ -5,5 +5,10 @@
 		"left": "A",
 		"right": "D",
 		"joystick": 1
+	},
+	"controls": {
+		"zoom_in": "WHEELUP",
+		"zoom_out": "WHEELDOWN",
+		"reset_room": "R"
 	}
 }

@@ -6,8 +6,14 @@ enum CollisionLayer {
 	MAP,
 	BOX,
 	PLAYER,
+	SECTION,
+	CAMERA_SECTION,
 	INPUT,
 	TITLE
+};
+
+enum Signals {
+	RESET_SECTION
 };
 
 enum TileType {
@@ -22,38 +28,61 @@ enum TileType {
 
 static const std::map<unsigned int, int> displayIndex = {
 	{' ', -1},
-	{'P', -1},
-	{'w', -1},
-	{'/', 0},
-	{'-', 1},
-	{'\\', 2},
-	{'#', 3},
-	{'\'', 4},
+	{'/', 8},
+	{'-', 0},
+	{'\\', 8+144},
+	{'#', 10},
+	{'\'', 6},
+	{'[', 4},
+	{']', 4+144},
+	{',', 12},
 	{' '+SNOW_OFFSET, -1},
-	{'P'+SNOW_OFFSET, -1},
-	{'w'+SNOW_OFFSET, -1},
-	{'/'+SNOW_OFFSET, 10},
-	{'-'+SNOW_OFFSET, 11},
-	{'\\'+SNOW_OFFSET, 12},
-	{'#'+SNOW_OFFSET, 13},
-	{'\''+SNOW_OFFSET, 14}
+	{'/'+SNOW_OFFSET, 8+18},
+	{'-'+SNOW_OFFSET, 0+18},
+	{'\\'+SNOW_OFFSET,8+18+144},
+	{'#'+SNOW_OFFSET, 10+18},
+	{'\''+SNOW_OFFSET, 6+18},
+	{'['+SNOW_OFFSET, 4+18},
+	{']'+SNOW_OFFSET, 4+18+144},
+	{','+SNOW_OFFSET, 12+18}
+};
+
+static const std::map<unsigned int, int> randomizerIndex = {
+	{'/', 2},
+	{'-', 4},
+	{'\\', 2},
+	{'#', 2},
+	{'\'', 2},
+	{'[', 2},
+	{']', 2},
+	{',', 1},
+	{'/'+SNOW_OFFSET, 2},
+	{'-'+SNOW_OFFSET, 4},
+	{'\\'+SNOW_OFFSET, 2},
+	{'#'+SNOW_OFFSET, 2},
+	{'\''+SNOW_OFFSET, 2},
+	{'['+SNOW_OFFSET, 2},
+	{']'+SNOW_OFFSET, 2},
+	{','+SNOW_OFFSET, 3}
 };
 
 static const std::map<unsigned int, int> collisionIndex = {
 	{' ', EMPTY},
-	{'P', EMPTY},
-	{'w', EMPTY},
 	{'/', SLOPERIGHT},
 	{'-', FULL},
 	{'\\', SLOPELEFT},
 	{'#',  FULL},
 	{'\'', PLATFORM},
+	{'[', FULL},
+	{']', FULL},
+	{',', EMPTY},
 	{' '+SNOW_OFFSET, EMPTY},
-	{'P'+SNOW_OFFSET, EMPTY},
-	{'w'+SNOW_OFFSET, EMPTY},
 	{'/'+SNOW_OFFSET, SLOPERIGHT},
 	{'-'+SNOW_OFFSET, FULL},
 	{'\\'+SNOW_OFFSET, SLOPELEFT},
 	{'#'+SNOW_OFFSET, FULL},
-	{'\''+SNOW_OFFSET, PLATFORM}
+	{'\''+SNOW_OFFSET, PLATFORM},
+	{'['+SNOW_OFFSET, FULL},
+	{']'+SNOW_OFFSET, FULL},
+	{','+SNOW_OFFSET, EMPTY}
 };

@@ -7,8 +7,9 @@
 		"up&1": "SPACE",
 		"joystick": 1
 	},
-	"zoom": {
-		"in": "WHEELUP",
-		"out": "WHEELDOWN"
+	"controls": {
+		"zoom_in": "WHEELUP",
+		"zoom_out": "WHEELDOWN",
+		"reset_room": "P"
 	}
 }
