@@ -3,7 +3,7 @@ options="-pthread -O3 -std=c++17 -Wall -fpermissive"
 windows_libs="-static -DSFML_STATIC -mwindows -lsfml-graphics-s -lsfml-window-s -lsfml-system-s -lwinmm -lgdi32 -lopengl32 -lfreetype"
 linux_libs="-lsfml-graphics -lsfml-window -lsfml-system -lX11"
 
-output="CircuitConstructor"
+output="ClimbingBlocks"
 
 windows_cmd="x86_64-w64-mingw32-g++ $files -o $output.exe $options $windows_libs"
 linux_cmd="g++ $files -o $output.out $options $linux_libs"

@@ -4,21 +4,37 @@
 
 enum CollisionLayer {
 	MAP,
+	BOX,
 	PLAYER,
 	INPUT,
 	TITLE
 };
 
+enum TileType {
+	EMPTY,
+	FULL,
+	SLOPELEFT,
+	SLOPERIGHT
+};
+
 static const std::map<char, int> displayIndex = {
 	{' ', -1},
-	{'#', 3},
-	{'.', 4},
-	{'P', 4}
+	{'P', -1},
+	{'b', -1},
+	{'D', 3},
+	{'-', 1},
+	{'h', 4},
+	{'\\', 2},
+	{'/', 0}
 };
 
 static const std::map<char, int> collisionIndex = {
-	{' ', 0},
-	{'#', 0},
-	{'.', 1},
-	{'P', 1}
+	{' ', EMPTY},
+	{'P', EMPTY},
+	{'b', EMPTY},
+	{'D', FULL},
+	{'-', FULL},
+	{'h', EMPTY},
+	{'\\', SLOPELEFT},
+	{'/', SLOPERIGHT}
 };

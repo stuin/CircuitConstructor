@@ -1,9 +1,13 @@
 {
 	"movement": {
-		"up": "W",
+		"up": "SPACE",
 		"down": "R",
 		"left": "A",
 		"right": "S",
 		"joystick": 1
+	},
+	"zoom": {
+		"in": "WHEELUP",
+		"out": "WHEELDOWN"
 	}
 }
