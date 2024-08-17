@@ -74,7 +74,7 @@ public:
 			if(collision.getTile(foot) == SLOPELEFT)
 				velocity.y -= ground.x - pos.x;
 			else if(collision.getTile(foot) == SLOPERIGHT)
-				velocity.y -= pos.x - ground.x - collision.getSize().x;
+				velocity.y -= pos.x - ground.x - collision.getScale().x;
 			velocity.y = std::min(std::max(2.0f, verticalSpeed * (float)time), velocity.y);
 
 			if(velocity.y == 0) {

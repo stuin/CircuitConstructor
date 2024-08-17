@@ -1,3 +1,5 @@
+#include "Skyrmion/InputHandler.h"
+
 #include "MovableBox.hpp"
 
 std::vector<std::string> zoomLayout = {

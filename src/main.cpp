@@ -2,7 +2,7 @@
 #include <SFML/System.hpp>
 #include <SFML/Graphics.hpp>
 
-#include "Skyrmion/InputHandler.h"
+#include "Skyrmion/GridManager.h"
 #include "indexes.h"
 #include "Player.hpp"
 
@@ -26,20 +26,22 @@ int main() {
 	UpdateList::addNode(&background);
 
 	//Load base tile maps
-	GridMaker grid("res/world/start_area.txt");
-	TileMap world(&worldTexture, 32, 32, new Indexer(&grid, displayIndex, 0), MAP);
-	Indexer collisionMap(&grid, collisionIndex, 0, 32, 32);
+	GridManager worldGrid("res/world.json");
+	//GridMaker grid("res/world/start_area.txt");
+	TileMap world(&worldTexture, 32, 32, new Indexer(worldGrid.grid, displayIndex, 0), MAP);
+	Indexer collisionMap(worldGrid.grid, collisionIndex, 0, 32, 32);
 	UpdateList::addNode(&world);
 
 	//Player
 	Player player(collisionMap);
 	player.setTexture(playerTexture);
+	player.setPosition(sf::Vector2f(0,0));
 	background.setParent(&player);
 	UpdateList::addNode(&player);
 
 	//Place player and boxes
 	collisionMap.mapGrid([&player, &crateTexture, &collisionMap](char c, sf::Vector2f pos) {
-		if(c == 'P') {
+		if(c == 'P' && player.getPosition() == sf::Vector2f(0,0)) {
 			player.setPosition(pos + sf::Vector2f(16, 0));
 		} if(c == 'w') {
 			MovableBox *b = new MovableBox(collisionMap, pos + sf::Vector2f(16, 16), sf::Vector2i(32, 32));

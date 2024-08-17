@@ -18,9 +18,9 @@ enum TileType {
 	SLOPERIGHT
 };
 
-#define SNOW_OFFSET 10
+#define SNOW_OFFSET 100
 
-static const std::map<char, int> displayIndex = {
+static const std::map<unsigned int, int> displayIndex = {
 	{' ', -1},
 	{'P', -1},
 	{'w', -1},
@@ -39,7 +39,7 @@ static const std::map<char, int> displayIndex = {
 	{'\''+SNOW_OFFSET, 14}
 };
 
-static const std::map<char, int> collisionIndex = {
+static const std::map<unsigned int, int> collisionIndex = {
 	{' ', EMPTY},
 	{'P', EMPTY},
 	{'w', EMPTY},
