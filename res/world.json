@@ -1,0 +1,22 @@
+{
+	"maps": [
+		{
+			"id": 0,
+			"file": "res/world/start_area.txt",
+			"left": 1,
+			"right": 2
+		},
+		{
+			"id": 1,
+			"file": "res/world/start_area.txt",
+			"tile_offset": 10
+		},
+		{
+			"id": 2,
+			"file": "res/puzzles/tutorial_1.txt",
+			"title": "Tutorial 1",
+			"camera_lock": true,
+			"reset": true
+		}
+	]
+}

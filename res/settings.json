@@ -1,9 +1,10 @@
 {
 	"movement": {
-		"up": "SPACE",
+		"up": "W",
 		"down": "R",
 		"left": "A",
 		"right": "S",
+		"up&1": "SPACE",
 		"joystick": 1
 	},
 	"zoom": {
