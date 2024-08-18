@@ -5,14 +5,14 @@
 			"file": "res/world/start_area.txt",
 			"left": 1,
 			"right": 3,
-			"zoom": 1.5
+			"zoom": 3.0
 		},
 		{
 			"id": 1,
 			"file": "res/world/test_grass.txt",
 			"left": 2,
 			"grab_camera": true,
-			"zoom": 3.0
+			"zoom": 6.0
 		},
 		{
 			"id": 2,
@@ -45,14 +45,14 @@
 			"id": 7,
 			"file": "res/puzzles/tutorial3_button.txt",
 			"right": 8,
-			"zoom": 1.5
+			"zoom": 3.0
 		},
 		{
 			"id": 8,
 			"file": "res/world/hill1.1.txt",
 			"right": 9,
 			"y_offset": -6,
-			"zoom": 2.0
+			"zoom": 4.0
 		},
 		{
 			"id": 9,

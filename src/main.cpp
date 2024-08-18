@@ -33,7 +33,6 @@ int main() {
 
 	//Load base tile maps
 	GridManager worldGrid("res/world.json", SECTION, sf::Vector2i(64, 64));
-	//GridMaker grid("res/world/start_area.txt");
 	Indexer display(worldGrid.grid, displayIndex, -1);
 	display.addRandomizer(&randomizerIndex);
 	LargeTileMap world(&worldTexture, 32, 32, &display, MAP);
