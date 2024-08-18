@@ -10,5 +10,6 @@
 		"zoom_in": "WHEELUP",
 		"zoom_out": "WHEELDOWN",
 		"reset_room": "R"
-	}
+	},
+	"debug_sections": false
 }

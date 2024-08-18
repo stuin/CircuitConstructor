@@ -21,6 +21,7 @@ Dirt/grass blocks can be swapped out for snow variants.
 | _    | pressure plate 	| EMPTY  	|
 | f    | flag 				| EMPTY  	|
 | ~    | hidden platform  	| PLATFORM? |
+| ?    | inverse platform  	| PLATFORM? |
 | P    | player spawn  		| EMPTY 	|
 | w    | wood block  		| EMPTY 	|
 | i    | ice block  		| EMPTY 	|

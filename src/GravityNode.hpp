@@ -15,7 +15,7 @@ public:
 	Indexer frictionMap;
 	float frictionValue = 1;
 
-	int jumpPower = 144;
+	int jumpPower = 288;
 
 	GravityNode(Indexer _collision, Indexer _friction, Layer layer, sf::Vector2i size) :
 	Node(layer, size), collision(_collision), frictionMap(_friction) {
@@ -54,10 +54,10 @@ public:
 		foot += velocity;
 		if(collision.getTile(foot) == EMPTY || (collision.getTile(foot) == TEMPPLATFORM && !tempPlatforms)) {
 			if(jumpTime < 0.2 && jumpInput)
-				verticalSpeed -= 1;
+				verticalSpeed -= 2;
 			else
-				verticalSpeed += 32;
-			verticalSpeed = std::min(verticalSpeed, 400.0f);
+				verticalSpeed += 64;
+			verticalSpeed = std::min(verticalSpeed, 800.0f);
 			velocity.y += verticalSpeed * time;
 
 			//Ceiling check

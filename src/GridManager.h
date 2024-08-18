@@ -5,6 +5,7 @@ using json = nlohmann::json;
 #include "Skyrmion/GridMaker.h"
 #include "Skyrmion/VertexGraph.hpp"
 #include "Skyrmion/UpdateList.h"
+#include "Skyrmion/Settings.h"
 
 enum sides {
 	UP,
@@ -64,7 +65,7 @@ public:
 		mapFile.close();
 
 		setSize(sf::Vector2i(width, height));
-		setHidden(true);
+		setHidden(!Settings::getBool("/debug_sections"));
 	}
 
 	void updateSize(sf::Vector2i scale) {
@@ -72,7 +73,7 @@ public:
 		setSize(sf::Vector2i(width * scale.x, height * scale.y));
 		rect.setSize(sf::Vector2f(width * scale.x, height * scale.y));
 		//rect.setPosition(getPosition() - sf::Vector2f(width/2, height/2));
-		rect.setOutlineColor(sf::Color::Black);
+		rect.setOutlineColor(sf::Color::Magenta);
 		rect.setOutlineThickness(1);
 		rect.setFillColor(sf::Color::Transparent);
 	}
@@ -83,13 +84,13 @@ class GridManager {
 	GridSection *root;
 	json world;
 
-	int width = 0;
-	int height = 0;
 	int x = 0;
 	int y = 0;
 
 public:
 	GridMaker *grid;
+	int width = 0;
+	int height = 0;
 
 	GridManager(std::string file, Layer _layer, sf::Vector2i scale) {
 		std::ifstream f(file);
@@ -107,7 +108,9 @@ public:
 
 		readNeighbors(0, root);
 		//root->printAddress();
-		//std::cout << "\n" << x << "," << y << "," << width-x << "," << height-y << "\n";
+		width -= x;
+		height -= y;
+		std::cout << "\n" << x << "," << y << "," << width << "," << height << "\n";
 
 		grid = new GridMaker(width-x, height-y);
 		for(int i = 0; i < sections.size(); i++) {

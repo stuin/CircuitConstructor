@@ -3,6 +3,8 @@
 #include "Skyrmion/GridMaker.h"
 
 enum CollisionLayer {
+	BACKGROUND,
+	TREEMAP,
 	MAP,
 	TEMPMAP,
 	BOX,
@@ -24,6 +26,12 @@ enum TileType {
 	SLOPELEFT,
 	SLOPERIGHT,
 	TEMPPLATFORM
+};
+
+enum TreeType {
+	TREEEMPTY,
+	NONE,
+	TREE
 };
 
 #define SNOW_OFFSET 100
@@ -126,3 +134,21 @@ static const std::map<unsigned int, int> tempDisplayIndex = {
 	{'~', 0+18+18},
 	{'~'+SNOW_OFFSET, 0+18+18}
 };
+
+static const std::map<unsigned int, int> treeGrowIndex = {
+	{' ', TREEEMPTY},
+	{'-', TREE},
+	{'#', TREE},
+	{'[', TREE},
+	{']', TREE},
+	{'-'+SNOW_OFFSET, TREE},
+	{'#'+SNOW_OFFSET, TREE},
+	{'['+SNOW_OFFSET, TREE},
+	{']'+SNOW_OFFSET, TREE}
+};
+
+static const std::map<unsigned int, int> treeDisplayIndex = {
+	{'t', 0},
+	{'T', 1}
+};
+

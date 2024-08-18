@@ -11,5 +11,6 @@
 		"zoom_in": "WHEELUP",
 		"zoom_out": "WHEELDOWN",
 		"reset_room": "P"
-	}
+	},
+	"debug_sections": false
 }
