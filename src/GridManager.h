@@ -4,8 +4,8 @@ using json = nlohmann::json;
 
 #include "Skyrmion/GridMaker.h"
 #include "Skyrmion/VertexGraph.hpp"
-#include "Skyrmion/UpdateList.h"
 #include "Skyrmion/Settings.h"
+#include "Skyrmion/Node.h"
 
 enum sides {
 	UP,
@@ -118,11 +118,10 @@ public:
 			next->x -= x;
 			next->y -= y;
 			next->updateSize(scale);
-			UpdateList::addNode(next);
 
 			//std::cout << next->file << " " << next->tileOffset << "\n";
 			//std::cout << next->x << "," << next->y << "," << next->width << "," << next->height << "\n";
-			grid->reload(next->file, next->tileOffset, next->x, next->y, next->width, next->height);
+			grid->reload(next->file, next->tileOffset, sf::Rect<uint>(next->x, next->y, next->width, next->height));
 		}
 		//grid->printGrid();
 	}
@@ -173,4 +172,11 @@ public:
 			readNeighbors(prev->leftId, next);
 		}
 	}
+
+	std::vector<Node *> getNodes() {
+        std::vector<Node *> nodes;
+        for(GridSection *section : sections)
+            nodes.push_back(section);
+        return nodes;
+    }
 };

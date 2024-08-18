@@ -5,7 +5,7 @@ linux_libs="-lsfml-graphics -lsfml-window -lsfml-system -lX11"
 
 
 name="ClimbingBlocks"
-build="0.08"
+build="0.09"
 output="$name-$build"
 
 windows_cmd="x86_64-w64-mingw32-g++ $files -o $output.exe $options $windows_libs"

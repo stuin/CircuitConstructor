@@ -36,35 +36,45 @@ int main() {
 	//GridMaker grid("res/world/start_area.txt");
 	Indexer display(worldGrid.grid, displayIndex, -1);
 	display.addRandomizer(&randomizerIndex);
-	TileMap world(&worldTexture, 32, 32, &display, MAP);
-	world.setScale(sf::Vector2f(2, 2));
-	UpdateList::addNode(&world);
+	LargeTileMap world(&worldTexture, 32, 32, &display, MAP);
+	world.setScales(sf::Vector2f(2, 2));
+	UpdateList::addNodes(worldGrid.getNodes());
+	UpdateList::addNodes(world.getNodes());
 
 	//Secondary maps
 	Indexer collisionMap(worldGrid.grid, collisionIndex, EMPTY, 64, 64);
 	Indexer frictionMap(worldGrid.grid, frictionIndex, 100, 64, 64);
-	TileMap tempMap(&worldTexture, 32, 32, new Indexer(worldGrid.grid, tempDisplayIndex, -1), TEMPMAP);
-	tempMap.setScale(sf::Vector2f(2, 2));
-	UpdateList::addNode(&tempMap);
+	LargeTileMap tempMap(&worldTexture, 32, 32, new Indexer(worldGrid.grid, tempDisplayIndex, -1), TEMPMAP);
+	tempMap.setScales(sf::Vector2f(2, 2));
+	UpdateList::addNodes(tempMap.getNodes());
 
 	//Generate tree map
-	GridMaker treeGrid(worldGrid.width/2, worldGrid.height/2);
+	GridMaker treeGrid(worldGrid.width, worldGrid.height);
 	Indexer growthMap(worldGrid.grid, treeGrowIndex, NONE);
 	int x = 0;
 	while(x < worldGrid.width) {
 		int y = 0;
 		while(y < worldGrid.height && growthMap.getTile(sf::Vector2f(x,y)) == EMPTY)
-			y += 2;
+			y += 1;
 
 		if(growthMap.getTile(sf::Vector2f(x,y)) == TREE && growthMap.getTile(sf::Vector2f(x+1,y)) == TREE &&
 			growthMap.getTile(sf::Vector2f(x,y-1)) == EMPTY && growthMap.getTile(sf::Vector2f(x+1,y-1)) == EMPTY) {
-			treeGrid.setTile(x/2, std::ceil(y/2.0)-1, 'T');
-			treeGrid.setTile(x/2, std::ceil(y/2.0)-2, 't');
+
+			treeGrid.setTile(x,   y-1, 10);
+			treeGrid.setTile(x+1, y-1, 11);
+			treeGrid.setTile(x,   y-2, 12);
+			treeGrid.setTile(x+1, y-2, 13);
+			treeGrid.setTile(x,   y-3, 14);
+			treeGrid.setTile(x+1, y-3, 15);
+			treeGrid.setTile(x,   y-4, 16);
+			treeGrid.setTile(x+1, y-4, 17);
+
+			//std::cout << x << "," << y << "\n";
 		}
-		x += (1 + std::rand() / ((RAND_MAX + 1u) / 4)) * 2;
+		x += (3 + std::rand() / ((RAND_MAX + 1u) / 8));
 	}
-	TileMap treeMap(&treeTexture, 128, 128, new Indexer(&treeGrid, treeDisplayIndex, -1), TREEMAP);
-	UpdateList::addNode(&treeMap);
+	LargeTileMap treeMap(&treeTexture, 64, 64, new Indexer(&treeGrid, treeDisplayIndex, -1), TREEMAP);
+	UpdateList::addNodes(treeMap.getNodes());
 
 	//Player
 	Player player(collisionMap, frictionMap);

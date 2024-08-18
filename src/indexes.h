@@ -148,7 +148,13 @@ static const std::map<unsigned int, int> treeGrowIndex = {
 };
 
 static const std::map<unsigned int, int> treeDisplayIndex = {
-	{'t', 0},
-	{'T', 1}
+	{10, 6},
+	{11, 7},
+	{12, 4},
+	{13, 5},
+	{14, 2},
+	{15, 3},
+	{16, 0},
+	{17, 1}
 };
 
