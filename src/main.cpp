@@ -54,11 +54,11 @@ int main() {
 	int x = 0;
 	while(x < worldGrid.width) {
 		int y = 0;
-		while(y < worldGrid.height && growthMap.getTile(sf::Vector2f(x,y)) == EMPTY)
+		while(y < worldGrid.height && growthMap.getTile(sf::Vector2f(x,y)) == EMPTY &&
+			growthMap.getTile(sf::Vector2f(x+1,y)) == EMPTY)
 			y += 1;
 
-		if(growthMap.getTile(sf::Vector2f(x,y)) == TREE && growthMap.getTile(sf::Vector2f(x+1,y)) == TREE &&
-			growthMap.getTile(sf::Vector2f(x,y-1)) == EMPTY && growthMap.getTile(sf::Vector2f(x+1,y-1)) == EMPTY) {
+		if(growthMap.getTile(sf::Vector2f(x,y)) == TREE && growthMap.getTile(sf::Vector2f(x+1,y)) == TREE) {
 
 			treeGrid.setTile(x,   y-1, 10);
 			treeGrid.setTile(x+1, y-1, 11);
@@ -87,11 +87,11 @@ int main() {
 	collisionMap.mapGrid([&player, &blocksTexture, &collisionMap, &frictionMap](uint c, sf::Vector2f pos) {
 		uint s = c - SNOW_OFFSET;
 		if(c == 'P' && player.getPosition() == sf::Vector2f(0,0))
-			player.setPosition(pos + sf::Vector2f(16, 0));
+			player.setPosition(pos + sf::Vector2f(32, 16));
 		else if(c == 'w' || c == 'g' || c == 'i' || s == 'w' || s == 'g' || s == 'i')
-			new MovableBox(collisionMap, frictionMap, c, pos + sf::Vector2f(8, 8), &blocksTexture);
+			new MovableBox(collisionMap, frictionMap, c, pos + sf::Vector2f(32, 16), &blocksTexture);
 		else if(c == '_' || s == '_')
-			new Button(pos + sf::Vector2f(16, 30), false);
+			new Button(pos + sf::Vector2f(32, 60), false);
 	});
 
 	//Finish engine setup

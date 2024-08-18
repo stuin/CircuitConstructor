@@ -52,8 +52,8 @@ public:
 			setScale(sf::Vector2f(4,4));
 
 		//Slide camera
-		if(camera->getPosition() != sf::Vector2f(0,0)) {
-			sf::Vector2f target = camera->getPosition() * -1.0f;
+		if(camera->getPosition() != sf::Vector2f(0,-64)) {
+			sf::Vector2f target = sf::Vector2f(0,-64) - camera->getPosition();
 			sf::Vector2f target2 = vectorLength(target, 400 * time);
 			if(std::abs(target.x) > std::abs(target2.x) && std::abs(target.x) > std::abs(target2.x))
 				target = target2;

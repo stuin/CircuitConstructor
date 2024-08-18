@@ -3,7 +3,7 @@ class Button : public Node {
 	bool reset = true;
 
 public:
-	Button(sf::Vector2f pos, bool player) : Node(BUTTON, sf::Vector2i(12, 4), true) {
+	Button(sf::Vector2f pos, bool player) : Node(BUTTON, sf::Vector2i(30, 8), true) {
 		setPosition(pos);
 
 		collideWith(PLAYER, player);
