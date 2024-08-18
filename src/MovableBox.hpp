@@ -11,13 +11,13 @@ public:
 	GravityNode(_collision, _friction, BOX, sf::Vector2i(16, 16)), startPosition(_startPosition) {
 		setPosition(startPosition);
 		setScale(sf::Vector2f(1.5, 1.5));
-		setTexture(blocksTexture);
+		setTexture(*blockTexture);
 
 		if(c == 'i' || c == 'i' + SNOW_OFFSET) {
-			b->setTextureRect(sf::IntRect(0, 16, 16, 16));
-			b->frictionValue = 0.5;
+			setTextureRect(sf::IntRect(0, 16, 16, 16));
+			frictionValue = 0.5;
 		} else {
-			b->setTextureRect(sf::IntRect(
+			setTextureRect(sf::IntRect(
 				(c == 'w' || c == 'w' + SNOW_OFFSET) ? 48 : 32, 0, 16, 16));
 		}
 

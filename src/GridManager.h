@@ -19,10 +19,9 @@ class GridSection : public Vertex<4>, public DrawNode {
 public:
 	std::string file;
 	int tileOffset = 0;
-	bool resettable = false;
 	bool trigger = false;
 	bool grabCamera = false;
-	float zoomLevel = 1.0f;
+	float zoomLevel = 0;
 
 	int upId = 0;
 	int rightId = 0;
@@ -51,7 +50,7 @@ public:
 		y = data.value("y_offset", 0);
 
 		grabCamera = data.value("grab_camera", false);
-		resettable = data.value("can_reset", false);
+		zoomLevel = data.value("zoom", 0.0f);
 
 		std::string line;
 		std::ifstream mapFile(file);
