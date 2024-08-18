@@ -37,8 +37,11 @@ int main() {
 	TileMap world(&worldTexture, 32, 32, &display, MAP);
 	UpdateList::addNode(&world);
 
+	//Secondary maps
 	Indexer collisionMap(worldGrid.grid, collisionIndex, EMPTY, 32, 32);
 	Indexer frictionMap(worldGrid.grid, frictionIndex, 100, 32, 32);
+	TileMap tempMap(&worldTexture, 32, 32, new Indexer(worldGrid.grid, tempDisplayIndex, -1, 32, 32), TEMPMAP);
+	UpdateList::addNode(&tempMap);
 
 	//Player
 	Player player(collisionMap, frictionMap);
@@ -49,22 +52,12 @@ int main() {
 
 	//Place player and boxes
 	collisionMap.mapGrid([&player, &blocksTexture, &collisionMap, &frictionMap](uint c, sf::Vector2f pos) {
-		if(c == 'P' && player.getPosition() == sf::Vector2f(0,0)) {
+		uint s = c - SNOW_OFFSET;
+		if(c == 'P' && player.getPosition() == sf::Vector2f(0,0))
 			player.setPosition(pos + sf::Vector2f(16, 0));
-		} else if(c == 'w' || c == 'g' || c == 'i' ||
-			c == 'w' + SNOW_OFFSET || c == 'g' + SNOW_OFFSET || c == 'i' + SNOW_OFFSET) {
-			MovableBox *b = new MovableBox(collisionMap, frictionMap, pos + sf::Vector2f(8, 8), sf::Vector2i(16, 16));
-			b->setScale(sf::Vector2f(1.5, 1.5));
-			b->setTexture(blocksTexture);
-			if(c == 'i' || c == 'i' + SNOW_OFFSET) {
-				b->setTextureRect(sf::IntRect(0, 16, 16, 16));
-				b->frictionValue = 0.5;
-			} else {
-				b->setTextureRect(sf::IntRect(
-					(c == 'w' || c == 'w' + SNOW_OFFSET) ? 48 : 32, 0, 16, 16));
-			}
-			UpdateList::addNode(b);
-		} else if(c == '_' || c == '_' + SNOW_OFFSET)
+		else if(c == 'w' || c == 'g' || c == 'i' || s == 'w' || s == 'g' || s == 'i')
+			new MovableBox(collisionMap, frictionMap, c, pos + sf::Vector2f(8, 8), &blocksTexture);
+		else if(c == '_' || s == '_')
 			new Button(pos + sf::Vector2f(16, 30), false);
 	});
 

@@ -44,6 +44,8 @@ public:
 		sf::Vector2f velocity = gravityVelocity(moveInput.getDirection() * 160.0f, time);
 		setPosition(getPosition() + velocity);
 
+		UpdateList::hideLayer(TEMPMAP, section == NULL || !section->trigger);
+
 		if(velocity.x < 0)
 			setScale(sf::Vector2f(-2,2));
 		else if(velocity.x > 0)

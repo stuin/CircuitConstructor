@@ -108,7 +108,7 @@ public:
 
 		readNeighbors(0, root);
 		//root->printAddress();
-		std::cout << "\n" << x << "," << y << "," << width-x << "," << height-y << "\n";
+		//std::cout << "\n" << x << "," << y << "," << width-x << "," << height-y << "\n";
 
 		grid = new GridMaker(width-x, height-y);
 		for(int i = 0; i < sections.size(); i++) {
@@ -119,7 +119,7 @@ public:
 			UpdateList::addNode(next);
 
 			//std::cout << next->file << " " << next->tileOffset << "\n";
-			std::cout << next->x << "," << next->y << "," << next->width << "," << next->height << "\n";
+			//std::cout << next->x << "," << next->y << "," << next->width << "," << next->height << "\n";
 			grid->reload(next->file, next->tileOffset, next->x, next->y, next->width, next->height);
 		}
 		//grid->printGrid();

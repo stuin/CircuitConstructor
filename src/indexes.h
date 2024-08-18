@@ -4,6 +4,7 @@
 
 enum CollisionLayer {
 	MAP,
+	TEMPMAP,
 	BOX,
 	BUTTON,
 	PLAYER,
@@ -38,7 +39,6 @@ static const std::map<unsigned int, int> displayIndex = {
 	{']', 4+168},
 	{',', 12},
 	{'"', 0+18+18},
-	{'~', 0+18+18},
 	{'T', 1+18+18},
 	{'N', 2+18+18},
 	{'_', 3+18+18},
@@ -54,7 +54,6 @@ static const std::map<unsigned int, int> displayIndex = {
 	{']'+SNOW_OFFSET, 4+18+168},
 	{','+SNOW_OFFSET, 12+18},
 	{'"'+SNOW_OFFSET, 0+18+18},
-	{'~'+SNOW_OFFSET, 0+18+18},
 	{'T'+SNOW_OFFSET, 1+18+18},
 	{'N'+SNOW_OFFSET, 2+18+18},
 	{'_'+SNOW_OFFSET, 3+18+18},
@@ -121,4 +120,9 @@ static const std::map<unsigned int, int> frictionIndex = {
 	{'\''+SNOW_OFFSET, 20},
 	{'['+SNOW_OFFSET, 20},
 	{']'+SNOW_OFFSET, 20}
+};
+
+static const std::map<unsigned int, int> tempDisplayIndex = {
+	{'~', 0+18+18},
+	{'~'+SNOW_OFFSET, 0+18+18}
 };
