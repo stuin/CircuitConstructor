@@ -8,18 +8,15 @@ std::vector<std::string> miscLayout = {
 
 class Player : public GravityNode {
 	DirectionHandler moveInput;
-
 	InputHandler miscInput;
-	float zoomLevel = 2;
 
-	Node *section = NULL;
+	float zoomLevel = 1.5;
 	sf::Vector2f enterPoint = sf::Vector2f(0,0);
-
 	Node *camera = NULL;
 
 public:
 
-	Player(Indexer _collision) : GravityNode(_collision, PLAYER, sf::Vector2i(32, 64)),
+	Player(Indexer _collision, Indexer _friction) : GravityNode(_collision, _friction, PLAYER, sf::Vector2i(16, 20)),
 		moveInput("/movement", INPUT, this), miscInput(miscLayout, INPUT, this) {
 
 		camera = new Node(INPUT, sf::Vector2i(450, 250), true, this);
@@ -27,7 +24,7 @@ public:
 		Player *_player = this;
 		miscInput.pressedFunc = [_player](int i) {
 			if(i < 2) {
-				_player->zoomLevel = std::clamp(2.0, _player->zoomLevel + 0.5 * (i ? 1 : -1), 10.0);
+				_player->zoomLevel = std::clamp(1.0, _player->zoomLevel + 0.5 * (i ? 1 : -1), 10.0);
 				//_player->setScale(sf::Vector2f(_player->zoomLevel, _player->zoomLevel));
 				UpdateList::setCamera(_player->camera, sf::Vector2f(450, 250) * _player->zoomLevel);
 			} else if(i == 2) {
@@ -35,25 +32,31 @@ public:
 				UpdateList::sendSignal(BOX, RESET_SECTION, _player->section);
 			}
 		};
-		UpdateList::setCamera(_player->camera, sf::Vector2f(450, 250) * 2.0f);
+		UpdateList::setCamera(_player->camera, sf::Vector2f(450, 250) * 1.5f);
+
+		setScale(sf::Vector2f(2,2));
 
 		collideWith(BOX);
 		collideWith(SECTION);
-		collideWith(CAMERA_SECTION);
 	}
 
 	void update(double time) {
 		sf::Vector2f velocity = gravityVelocity(moveInput.getDirection() * 160.0f, time);
 		setPosition(getPosition() + velocity);
+
+		if(velocity.x < 0)
+			setScale(sf::Vector2f(-2,2));
+		else if(velocity.x > 0)
+			setScale(sf::Vector2f(2,2));
 	}
 
 	void collide(Node *object) {
-		if(object->getLayer() == SECTION || object->getLayer() == CAMERA_SECTION) {
+		if(object->getLayer() == SECTION) {
 			if(section != object) {
-				section = object;
+				section = (GridSection *)object;
 				enterPoint = getPosition();
 				//std::cout << "Entering room\n";
-				if(object->getLayer() == CAMERA_SECTION) {
+				if(section->grabCamera) {
 					camera->setParent(object);
 				} else
 					camera->setParent(this);

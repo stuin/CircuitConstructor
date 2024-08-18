@@ -2,19 +2,16 @@
 
 class MovableBox : public GravityNode {
 	sf::Vector2f pushDirection = sf::Vector2f(0,0);
-
 	sf::Vector2f startPosition;
-	Node *section = NULL;
 
 public:
-	MovableBox(Indexer _collision, sf::Vector2f _startPosition, sf::Vector2i size) :
-	GravityNode(_collision, BOX, size), startPosition(_startPosition) {
+	MovableBox(Indexer _collision, Indexer _friction, sf::Vector2f _startPosition, sf::Vector2i size) :
+	GravityNode(_collision, _friction, BOX, size), startPosition(_startPosition) {
 		setPosition(startPosition);
 
 		collideWith(PLAYER);
 		collideWith(BOX);
 		collideWith(SECTION);
-		collideWith(CAMERA_SECTION);
 	}
 
 	void update(double time) {
@@ -33,13 +30,12 @@ public:
 	}
 
 	void collide(Node *object) {
-		if(object->getLayer() == SECTION || object->getLayer() == CAMERA_SECTION) {
-			section = object;
+		if(object->getLayer() == SECTION) {
+			section = (GridSection *) object;
 			collideWith(SECTION, false);
-			collideWith(CAMERA_SECTION, false);
 		} else {
 			float x = getPosition().x - object->getPosition().x;
-			if(std::abs(x) > 20)
+			if(std::abs(x) > getSize().x)
 				pushDirection.x += x;
 			colliding.push_back(object);
 		}

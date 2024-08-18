@@ -4,20 +4,32 @@
 			"id": 0,
 			"file": "res/world/start_area.txt",
 			"left": 1,
-			"right": 2
+			"right": 3
 		},
 		{
 			"id": 1,
-			"file": "res/world/start_area.txt",
-			"tile_offset": 100
+			"file": "res/world/test_grass.txt",
+			"left": 2
 		},
 		{
 			"id": 2,
-			"file": "res/puzzles/tutorial_1.txt",
-			"title": "Tutorial 1",
-			"y_offset": 1,
-			"grab_camera": true,
-			"can_reset": true
+			"file": "res/world/test_ice.txt",
+			"tile_offset": 100
+		},
+		{
+			"id": 3,
+			"file": "res/puzzles/tutorial_pit.txt",
+			"right": 4
+		},
+		{
+			"id": 4,
+			"file": "res/puzzles/tutorial_stacking.txt",
+			"right": 5,
+			"y_offset": -2
+		},
+		{
+			"id": 5,
+			"file": "res/puzzles/tutorial_button.txt"
 		}
 	]
 }
