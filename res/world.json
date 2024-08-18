@@ -5,14 +5,14 @@
 			"file": "res/world/start_area.txt",
 			"left": 1,
 			"right": 3,
-			"zoom": 3.0
+			"zoom": 1.5
 		},
 		{
 			"id": 1,
 			"file": "res/world/test_grass.txt",
 			"left": 2,
 			"grab_camera": true,
-			"zoom": 6.0
+			"zoom": 3.0
 		},
 		{
 			"id": 2,
@@ -26,25 +26,36 @@
 		},
 		{
 			"id": 4,
-			"file": "res/puzzles/tutorial2_stacking.txt",
-			"right": 5,
-			"y_offset": -2
+			"file": "res/world/Grassy_area_1.txt",
+			"right": 5
 		},
 		{
 			"id": 5,
-			"file": "res/puzzles/tutorial3_button.txt",
+			"file": "res/puzzles/tutorial2_stacking.txt",
 			"right": 6,
-			"zoom": 3.0
+			"y_offset": -2
 		},
 		{
 			"id": 6,
-			"file": "res/world/hill1.1.txt",
+			"file": "res/puzzles/tutorial2_stacking2.txt",
 			"right": 7,
-			"y_offset": -6,
-			"zoom": 4.0
+			"y_offset": -2
 		},
 		{
 			"id": 7,
+			"file": "res/puzzles/tutorial3_button.txt",
+			"right": 8,
+			"zoom": 1.5
+		},
+		{
+			"id": 8,
+			"file": "res/world/hill1.1.txt",
+			"right": 9,
+			"y_offset": -6,
+			"zoom": 2.0
+		},
+		{
+			"id": 9,
 			"file": "res/world/hill1.2_ladder.txt",
 			"y_offset": -4
 		}
