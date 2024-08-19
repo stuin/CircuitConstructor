@@ -13,13 +13,14 @@ Dirt/grass blocks can be swapped out for snow variants.
 | '    | dirt platform  	| PLATFORM  |
 | []   | grass edge     	| FULL      |
 | ]    | grass edge     	| FULL      |
-| ,    | grass decor/flower | EMPTY     |
 | ""   | wood platform  	| PLATFORM  |
 | T    | supported platform | PLATFORM  |
 | N    | wood supports 		| EMPTY  	|
 | H    | ladder 			| PLATFORM  |
 | _    | pressure plate 	| EMPTY  	|
 | f    | flag 				| EMPTY  	|
+| <    | sign 				| EMPTY  	|
+| >    | sign 				| EMPTY  	|
 | ~    | hidden platform  	| PLATFORM? |
 | ?    | inverse platform  	| PLATFORM? |
 | P    | player spawn  		| EMPTY 	|
