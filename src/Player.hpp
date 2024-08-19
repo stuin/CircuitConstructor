@@ -86,6 +86,6 @@ public:
 					zoomTarget = section->zoomLevel;
 			}
 		} else
-			colliding.push_back(object);
+			colliding.push_back((GravityNode*)object);
 	}
 };

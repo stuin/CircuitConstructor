@@ -26,6 +26,7 @@ Dirt/grass blocks can be swapped out for snow variants.
 | w    | wood block  		| EMPTY 	|
 | i    | ice block  		| EMPTY 	|
 | g    | gold block  		| EMPTY 	|
+| m    | large block  		| EMPTY 	|
 
 ## world.json
 {

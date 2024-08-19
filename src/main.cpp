@@ -87,7 +87,7 @@ int main() {
 		uint s = c - SNOW_OFFSET;
 		if(c == 'P' && player.getPosition() == sf::Vector2f(0,0))
 			player.setPosition(pos + sf::Vector2f(32, 16));
-		else if(c == 'w' || c == 'g' || c == 'i' || s == 'w' || s == 'g' || s == 'i')
+		else if(c == 'w' || s == 'w' || c == 'g' || s == 'g' || c == 'i' || s == 'i' || c == 'm' || s == 'm')
 			new MovableBox(collisionMap, frictionMap, c, pos + sf::Vector2f(32, 16), &blocksTexture);
 		else if(c == '_' || s == '_')
 			new Button(pos + sf::Vector2f(32, 60), false);
