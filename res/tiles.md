@@ -41,7 +41,8 @@ Dirt/grass blocks can be swapped out for snow variants.
 	"x_offset": "Number of tiles to shift this section horizontally, + to right, - to left",
 	"y_offset": "Number of tiles to shift this section vertically, + for down, - for up",
 	"grab_camera": "Center camera on this section when player is inside",
-	"zoom": "Zoom factor when player is inside, 1.5 = default, + to zoom out, - to zoom in"
+	"zoom": "Zoom factor when player is inside, 1.5 = default, + to zoom out, - to zoom in",
+	"sign_text": "Text to display above flags and signs"
 }
 
 
