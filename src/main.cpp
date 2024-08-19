@@ -30,6 +30,9 @@ int main() {
 	UpdateList::loadTexture(&blocksTexture, "res/blocks.png");
 	UpdateList::loadTexture(&backgroundTexture, "res/background.png");
 
+	sf::Font font;
+	font.loadFromFile("res/Goudy Mediaeval Regular.ttf");
+
 	//Load background
 	Node background(BACKGROUND, sf::Vector2i(1920, 1080));
 	background.setTexture(backgroundTexture);
@@ -56,7 +59,7 @@ int main() {
 	GridMaker decorGrid(worldGrid.width, worldGrid.height);
 	GridMaker foregroundGrid(worldGrid.width/4, worldGrid.height/4);
 	Indexer growthMap(worldGrid.grid, treeGrowIndex, NONE);
-	int x = 0;
+	int x = std::rand() / ((RAND_MAX + 1u) / 3);
 	while(x < worldGrid.width) {
 		int y = 0;
 		bool wide = true;
@@ -100,6 +103,35 @@ int main() {
 
 		x += 2 + std::rand() / ((RAND_MAX + 1u) / 3);
 	}
+	x = std::min(x, worldGrid.width);
+	x = (int)(x/4)*4;
+	while(x > 0) {
+		int y = worldGrid.height;
+		while(y > 0 && growthMap.getTile(sf::Vector2f(x,y)) != NONE &&
+			growthMap.getTile(sf::Vector2f(x+1,y)) != NONE &&
+			growthMap.getTile(sf::Vector2f(x+2,y)) != NONE)
+			y -= 1;
+
+		int r = std::rand() / ((RAND_MAX + 1u) / 4);
+		switch(r) {
+		case 0:
+			foregroundGrid.setTile(x/4, std::ceil(y/4)+2, 1);
+			break;
+		case 1:
+			foregroundGrid.setTile(x/4, std::ceil(y/4)+2, 2);
+			break;
+		case 2:
+			foregroundGrid.setTile(x/4, std::ceil(y/4)+2, 31);
+			foregroundGrid.setTile(x/4+1, std::ceil(y/4)+2, 32);
+			break;
+		case 3:
+			foregroundGrid.setTile(x/4, std::ceil(y/4)+2, 41);
+			foregroundGrid.setTile(x/4, std::ceil(y/4)+1, 42);
+			break;
+		}
+
+		x -= 4 + std::rand() / ((RAND_MAX + 1u) / 4) * 4;
+	}
 
 	//Render decor map
 	Indexer decor(&decorGrid, decorDisplayIndex, -1);
@@ -108,8 +140,14 @@ int main() {
 	decorMap.setScales(sf::Vector2f(2, 2));
 	UpdateList::addNodes(decorMap.getNodes());
 
+	//Render forground map
+	Indexer foreground(&foregroundGrid, foregroundDisplayIndex, -1);
+	display.addRandomizer(&foregroundRandomIndex);
+	LargeTileMap foregroundMap(&foregroundTexture, 256, 256, &foreground, FOREGROUND);
+	//UpdateList::addNodes(foregroundMap.getNodes());
+
 	//Player
-	Player player(collisionMap, frictionMap);
+	Player player(collisionMap, frictionMap, &font);
 	player.setTexture(playerTexture);
 	player.setPosition(sf::Vector2f(0,0));
 	background.setParent(&player);
@@ -128,6 +166,11 @@ int main() {
 			treeGrid.setTile(pos.x / 64, pos.y / 64, 3);
 		else if(s == 't')
 			treeGrid.setTile(pos.x / 64, pos.y / 64, 4);
+		else if(c == '>' || s == '>' || c == '<' || s == '<' || c == 'f' || s == 'f') {
+			Node *sign = new Node(SIGN);
+			sign->setPosition(pos + sf::Vector2f(32, 32));
+			UpdateList::addNode(sign);
+		}
 	});
 
 	//Render tree map

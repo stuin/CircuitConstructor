@@ -10,6 +10,9 @@ enum CollisionLayer {
 	BUTTON,
 	BOX,
 	PLAYER,
+	SIGN,
+	FOREGROUND,
+	TEXT,
 	SECTION,
 	INPUT,
 	TITLE
@@ -204,14 +207,13 @@ static const std::map<unsigned int, int> foregroundDisplayIndex = {
 	{' ', -1},
 	{1, 0},
 	{2, 7},
-	{11, 4},
-	{12, 5},
-	{21, 13},
-	{22, 6}
+	{31, 4},
+	{32, 5},
+	{41, 13},
+	{42, 6}
 };
 
 static const std::map<unsigned int, int> foregroundRandomIndex = {
-	{' ', -1},
 	{1, 4},
 	{2, 5}
 };

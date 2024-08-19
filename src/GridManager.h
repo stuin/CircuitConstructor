@@ -21,6 +21,8 @@ public:
 	std::string file;
 	int tileOffset = 0;
 	bool trigger = false;
+
+	std::string signText = "";
 	bool grabCamera = false;
 	float zoomLevel = 0;
 
@@ -42,6 +44,10 @@ public:
 		file = data.value("file", "");
 		tileOffset = data.value("tile_offset", 0);
 
+		signText = data.value("sign_text", "");
+		grabCamera = data.value("grab_camera", false);
+		zoomLevel = data.value("zoom", 0.0f);
+
 		upId = data.value("up", 0);
 		rightId = data.value("right", 0);
 		downId = data.value("down", 0);
@@ -49,9 +55,6 @@ public:
 
 		x = data.value("x_offset", 0);
 		y = data.value("y_offset", 0);
-
-		grabCamera = data.value("grab_camera", false);
-		zoomLevel = data.value("zoom", 0.0f);
 
 		std::string line;
 		std::ifstream mapFile(file);

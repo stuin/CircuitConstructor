@@ -10,20 +10,34 @@ class Player : public GravityNode {
 	DirectionHandler moveInput;
 	InputHandler miscInput;
 
+	const int scaleFactor = 3;
 	sf::Vector2f enterPoint = sf::Vector2f(0,0);
+
+	sf::RectangleShape textShape;
+	sf::Text text;
+	DrawNode *textBackground;
+	DrawNode *textNode;
+	bool textVisible = false;
+
+	Node *camera = NULL;
 	float zoomLevel = 3.0;
 	float zoomTarget = 3.0;
 
-	const int scaleFactor = 3;
-
-	Node *camera = NULL;
-
 public:
 
-	Player(Indexer _collision, Indexer _friction) : GravityNode(_collision, _friction, PLAYER, sf::Vector2i(17, 26)),
+	Player(Indexer _collision, Indexer _friction, sf::Font *font) : GravityNode(_collision, _friction, PLAYER, sf::Vector2i(17, 26)),
 		moveInput("/movement", INPUT, this), miscInput(miscLayout, INPUT, this) {
 
-		camera = new Node(INPUT, sf::Vector2i(450, 250), true, this);
+		textShape.setFillColor(sf::Color(0,0,0,200));
+		text.setFont(*font);
+		text.setCharacterSize(25);
+		text.setFillColor(sf::Color::White);
+		textBackground = new DrawNode(textShape, TEXT, sf::Vector2i(16, 16), this);
+		textBackground->setHidden();
+		textNode = new DrawNode(text, TEXT, sf::Vector2i(16, 16), textBackground);
+		textNode->setPosition(sf::Vector2f(8, 0));
+		UpdateList::addNode(textBackground);
+		UpdateList::addNode(textNode);
 
 		Player *_player = this;
 		miscInput.pressedFunc = [_player](int i) {
@@ -34,6 +48,7 @@ public:
 				UpdateList::sendSignal(BOX, RESET_SECTION, _player->section);
 			}
 		};
+		camera = new Node(INPUT, sf::Vector2i(450, 250), true, this);
 		UpdateList::setCamera(_player->camera, sf::Vector2f(450, 250) * zoomLevel);
 
 		setScale(sf::Vector2f(scaleFactor, scaleFactor));
@@ -43,6 +58,7 @@ public:
 
 		collideWith(BOX);
 		collideWith(SECTION);
+		collideWith(SIGN);
 	}
 
 	void update(double time) {
@@ -71,6 +87,10 @@ public:
 			zoomLevel += std::clamp(-0.02f, zoomTarget - zoomLevel, 0.02f);
 			UpdateList::setCamera(camera, sf::Vector2f(450, 250) * zoomLevel);
 		}
+
+		if(!textVisible)
+			textBackground->setHidden(true);
+		textVisible = false;
 	}
 
 	void collide(Node *other) {
@@ -89,6 +109,15 @@ public:
 				camera->setGPosition(cameraPosition);
 				if(section->zoomLevel != 0)
 					zoomTarget = section->zoomLevel;
+			}
+		} else if(other->getLayer() == SIGN) {
+			if(section != NULL) {
+				text.setString(section->signText);
+				//text.setPosition(sf::Vector2f(-16 * section->signText.length(), 32));
+				textShape.setSize(sf::Vector2f(10 * section->signText.length(), 38));
+				textBackground->setHidden(false);
+				textBackground->setPosition(sf::Vector2f(-4.0 * section->signText.length(), -80));
+				textVisible = true;
 			}
 		} else
 			addCollision((GravityNode*)other);
