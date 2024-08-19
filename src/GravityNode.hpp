@@ -1,5 +1,7 @@
 #include "Skyrmion/TileMap.hpp"
 
+#define PUSHCOUNT 20
+
 class GravityNode : public Node {
 	float jumpTime = 0;
 	float verticalSpeed = 0;
@@ -7,19 +9,30 @@ class GravityNode : public Node {
 
 	bool tempPlatforms = false;
 
+	const int jumpPower = 300;
+	const int jumpBoost = 8;
+	const int fallSpeed = 48;
+	const int fallMax = 600;
+	const int slideSpeed = 300;
+	const int slideMax = 200;
+	const int slideReverse = 2;
+	const int pushPower = 20;
+
 public:
 	Indexer collision;
-	bool blocked = false;
-	std::vector<GravityNode *> colliding;
 	GridSection *section = NULL;
+	std::vector<GravityNode *> colliding;
+	bool blocked = false;
+	bool isPlayer = false;
+	int snapSpeed = 2;
 
-	Indexer frictionMap;
-	float frictionValue = 1;
+	sf::Vector2f pushDirection = sf::Vector2f(0,0);
+	std::vector<GravityNode *> pushing;
 	float weight = 0;
 	float pushWeight = 0;
 
-	int jumpPower = 288;
-	int slideSpeed = 100;
+	Indexer frictionMap;
+	float frictionValue = 1;
 
 	GravityNode(Indexer _collision, Indexer _friction, Layer layer, sf::Vector2i size) :
 	Node(layer, size), collision(_collision), frictionMap(_friction) {
@@ -28,25 +41,32 @@ public:
 
 	sf::Vector2f gravityVelocity(sf::Vector2f input, double time) {
 		bool jumpInput = input.y < 0;
-		sf::Vector2f velocity = sf::Vector2f(input.x * time, 0);
+		sf::Vector2f velocity = sf::Vector2f((input.x + pushDirection.x) * time, 0);
 		sf::Vector2f pos = getPosition();
 		sf::Vector2f foot = pos;
-		foot.y += getSize().y / 2 + 4;
-		tempPlatforms = section != NULL && section->trigger;
+		foot.y += getSize().y / 2 - 2;
+		sf::Vector2f footL = foot - sf::Vector2f(getSize().x / 2, 0);
+		sf::Vector2f footR = foot + sf::Vector2f(getSize().x / 2, 0);
+		foot.y += 6;
 
 		//Friction
 		float friction = (frictionMap.getTile(foot) / 100.0) * frictionValue;
 		friction = std::clamp(0.0f, friction, 1.0f);
 		if(friction < 1 && collision.getTile(foot) != EMPTY) {
 			velocity.x *= friction;
-			velocity.x += horizontalSpeed * (1.0 - friction/2) * time;
+			velocity.x += horizontalSpeed * (1.0 - friction/3) * time;
 
-			if(std::abs(velocity.x) < slideSpeed * time) {
-				if(collision.getTile(foot) == SLOPELEFT)
-					velocity.x += slideSpeed * (1 - friction) * weight * time;
-				else if(collision.getTile(foot) == SLOPERIGHT)
-					velocity.x -= slideSpeed * (1 - friction) * weight * time;
+			if((collision.getTile(footL) == SLOPELEFT || collision.getTile(foot) == SLOPELEFT) && velocity.x > -slideReverse) {
+				velocity.x += slideSpeed * (1 - friction) * std::min(pushWeight*2, 1.0f) * time;
+				velocity.x = std::min(velocity.x, (float)(slideMax * time));
+				velocity.y += velocity.x;
 			}
+			if((collision.getTile(footR) == SLOPERIGHT || collision.getTile(foot) == SLOPERIGHT) && velocity.x < slideReverse) {
+				velocity.x -= slideSpeed * (1 - friction) * std::min(pushWeight*2, 1.0f) * time;
+				velocity.x = std::max(velocity.x, -(float)(slideMax * time));
+				velocity.y -= velocity.x;
+			}
+
 		}
 
 		//Check for wall
@@ -63,16 +83,17 @@ public:
 
 		//Falling and jumping
 		foot += velocity;
-		sf::Vector2f footL = foot - sf::Vector2f(getSize().x / 4, 0);
-		sf::Vector2f footR = foot + sf::Vector2f(getSize().x / 4, 0);
+		footL = foot - sf::Vector2f(getSize().x / 4, 0);
+		footR = foot + sf::Vector2f(getSize().x / 4, 0);
+		tempPlatforms = section != NULL && section->trigger;
 		if((collision.getTile(footL) == EMPTY || (collision.getTile(footL) == TEMPPLATFORM && !tempPlatforms))
 			&& (collision.getTile(footR) == EMPTY || (collision.getTile(footR) == TEMPPLATFORM && !tempPlatforms))) {
 
 			if(jumpTime < 0.2 && jumpInput)
-				verticalSpeed -= 2;
+				verticalSpeed -= jumpBoost;
 			else
-				verticalSpeed += 64;
-			verticalSpeed = std::min(verticalSpeed, 800.0f);
+				verticalSpeed += fallSpeed;
+			verticalSpeed = std::min(verticalSpeed, (float)fallMax);
 			velocity.y += verticalSpeed * time;
 
 			//Ceiling check
@@ -103,13 +124,16 @@ public:
 				foot = foot2;
 				ground = collision.snapPosition(foot);
 			}
-			velocity.y = ground.y - pos.y - getSize().y / 2;
+			velocity.y += ground.y - pos.y - getSize().y/2;
+			//if(velocity.y > 0)
+			//	velocity.y = 0;
 
 			if(collision.getTile(foot) == SLOPELEFT)
 				velocity.y -= ground.x - pos.x;
 			else if(collision.getTile(foot) == SLOPERIGHT)
 				velocity.y -= pos.x - ground.x - collision.getScale().x;
-			velocity.y = std::min(std::max(2.0f, verticalSpeed * (float)time), velocity.y);
+
+			velocity.y = std::min(std::max((float)snapSpeed, verticalSpeed * (float)time), velocity.y);
 
 			if(velocity.y == 0) {
 				verticalSpeed = 0;
@@ -117,29 +141,56 @@ public:
 			}
 		}
 
+		pushing.clear();
+		pushWeight = 0;
 		for(GravityNode *other : colliding) {
-			if(getPosition().y + getSize().y/2 >= other->getPosition().y - other->getSize().y/2) {
+			if(isAbove(other)) {
 				if(jumpInput && jumpTime == time) {
 					jumpTime = 0;
 					verticalSpeed = -jumpPower;
 					velocity.y += verticalSpeed * time;
-				} else if(velocity.y > 0) {
+				} else if(velocity.y > 0 && other->verticalSpeed >= 0) {
 					velocity.y = (other->getPosition().y - other->getSize().y/2) - (pos.y + getSize().y/2)+2;
-					//velocity.y = 0;
+					//velocity.y += other->verticalSpeed * time;
 					jumpTime = 0;
+
+					other->pushWeight += pushWeight;
 				}
 			} else if(velocity.x != 0 && (other->getPosition().x - getPosition().x) * velocity.x > 0) {
-				if(other->blocked)
+				if(other->blocked || other->pushWeight > 1)
 					velocity.x = 0;
-				else if(other->weight != 0)
-					velocity.x -= velocity.x * other->weight;
+
+				pushing.push_back(other);
+				pushWeight += other->pushWeight;
 			}
 		}
-		pushWeight = weight;
 		colliding.clear();
+
+		pushWeight += weight;
+		velocity.x *= 1-std::clamp(0.0f, pushWeight * friction, 1.0f);
+
+		pushDirection = sf::Vector2f(0,0);
+		for(GravityNode *other : pushing) {
+			other->pushDirection.x = velocity.x / time;
+			if(velocity.x > 0)
+				velocity.x = std::min(other->horizontalSpeed * (float)time, velocity.x);
+			else
+				velocity.x = std::max(other->horizontalSpeed * (float)time, velocity.x);
+		}
 
 		horizontalSpeed = velocity.x / time;
 		blocked = std::abs(input.x) > 0.1 && std::abs(velocity.x) < 0.1;
 		return velocity;
+	}
+
+	bool isAbove(Node *other) {
+		float dx = getPosition().x - other->getPosition().x;
+		float dy = (other->getPosition().y - other->getSize().y/2) - (getPosition().y + getSize().y/4);
+		float side = getSize().x/3 + other->getSize().x/2;
+		return std::abs(dx) < side && dy > 0;
+	}
+
+	void addCollision(GravityNode *other) {
+		colliding.push_back(other);
 	}
 };

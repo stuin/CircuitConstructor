@@ -35,6 +35,9 @@ public:
 		UpdateList::setCamera(_player->camera, sf::Vector2f(450, 250) * zoomLevel);
 
 		setScale(sf::Vector2f(4,4));
+		isPlayer = true;
+		snapSpeed = 6;
+		weight = 0.01;
 
 		collideWith(BOX);
 		collideWith(SECTION);
@@ -68,17 +71,17 @@ public:
 		}
 	}
 
-	void collide(Node *object) {
-		if(object->getLayer() == SECTION) {
-			if(section != object) {
-				section = (GridSection *)object;
+	void collide(Node *other) {
+		if(other->getLayer() == SECTION) {
+			if(section != other) {
+				section = (GridSection *)other;
 				enterPoint = getPosition();
 				//std::cout << "Entering room\n";
 
 				//Adjust camera
 				sf::Vector2f cameraPosition = camera->getGPosition();
 				if(section->grabCamera)
-					camera->setParent(object);
+					camera->setParent(other);
 				else
 					camera->setParent(this);
 				camera->setGPosition(cameraPosition);
@@ -86,6 +89,6 @@ public:
 					zoomTarget = section->zoomLevel;
 			}
 		} else
-			colliding.push_back((GravityNode*)object);
+			addCollision((GravityNode*)other);
 	}
 };

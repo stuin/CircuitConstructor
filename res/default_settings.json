@@ -11,5 +11,6 @@
 		"zoom_out": "WHEELDOWN",
 		"reset_room": "R"
 	},
-	"debug_sections": false
+	"debug_sections": false,
+	"debug_block_rotation": false
 }
