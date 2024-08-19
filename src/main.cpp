@@ -16,13 +16,17 @@ int main() {
 
 	//Load tilemap textures
 	sf::Texture worldTexture;
+	sf::Texture decorTexture;
 	sf::Texture treeTexture;
+	sf::Texture foregroundTexture;
 	sf::Texture playerTexture;
 	sf::Texture blocksTexture;
 	sf::Texture backgroundTexture;
 	UpdateList::loadTexture(&worldTexture, "res/world_tiles.png");
-	UpdateList::loadTexture(&treeTexture, "res/Tree_1.png");
-	UpdateList::loadTexture(&playerTexture, "res/climber_character.png");
+	UpdateList::loadTexture(&decorTexture, "res/decor_tiles.png");
+	UpdateList::loadTexture(&treeTexture, "res/trees.png");
+	UpdateList::loadTexture(&foregroundTexture, "res/foreground_tiles.png");
+	UpdateList::loadTexture(&playerTexture, "res/character.png");
 	UpdateList::loadTexture(&blocksTexture, "res/blocks.png");
 	UpdateList::loadTexture(&backgroundTexture, "res/background.png");
 
@@ -47,33 +51,62 @@ int main() {
 	tempMap.setScales(sf::Vector2f(2, 2));
 	UpdateList::addNodes(tempMap.getNodes());
 
-	//Generate tree map
+	//Generate tree+decor maps
 	GridMaker treeGrid(worldGrid.width, worldGrid.height);
+	GridMaker decorGrid(worldGrid.width, worldGrid.height);
+	GridMaker foregroundGrid(worldGrid.width/4, worldGrid.height/4);
 	Indexer growthMap(worldGrid.grid, treeGrowIndex, NONE);
 	int x = 0;
 	while(x < worldGrid.width) {
 		int y = 0;
-		while(y < worldGrid.height && growthMap.getTile(sf::Vector2f(x,y)) == EMPTY &&
-			growthMap.getTile(sf::Vector2f(x+1,y)) == EMPTY)
+		bool wide = true;
+		while(y < worldGrid.height && growthMap.getTile(sf::Vector2f(x,y)) == EMPTY) {
+			if(growthMap.getTile(sf::Vector2f(x+1,y)) != EMPTY)
+				wide = false;
 			y += 1;
-
-		if(growthMap.getTile(sf::Vector2f(x,y)) == TREE && growthMap.getTile(sf::Vector2f(x+1,y)) == TREE) {
-
-			treeGrid.setTile(x,   y-1, 10);
-			treeGrid.setTile(x+1, y-1, 11);
-			treeGrid.setTile(x,   y-2, 12);
-			treeGrid.setTile(x+1, y-2, 13);
-			treeGrid.setTile(x,   y-3, 14);
-			treeGrid.setTile(x+1, y-3, 15);
-			treeGrid.setTile(x,   y-4, 16);
-			treeGrid.setTile(x+1, y-4, 17);
-
-			//std::cout << x << "," << y << "\n";
 		}
-		x += (3 + std::rand() / ((RAND_MAX + 1u) / 8));
+
+		int r = std::rand() / ((RAND_MAX + 1u) / 8);
+		int t = growthMap.getTile(sf::Vector2f(x,y));
+		int o = (t == SNOWTREE) ? 1 : 0;
+		if(t == ROCK || t == SNOWROCK)
+			decorGrid.setTile(x, y-1, 'r'+(t == SNOWROCK) ? SNOW_OFFSET : 0);
+		else if((t == TREE || t == SNOWTREE) && r < 4) {
+			switch(r) {
+			case 0:
+				decorGrid.setTile(x, y-1, 'f'+o*SNOW_OFFSET);
+				break;
+			case 1:
+				decorGrid.setTile(x, y-1, o?'p'+SNOW_OFFSET : 'f');
+				break;
+			case 2:
+				decorGrid.setTile(x, y-1, 'b'+o*SNOW_OFFSET);
+				break;
+			case 3:
+				treeGrid.setTile(x, y-1, 1+o);
+				break;
+			}
+		} else if(wide && (t == TREE || t == SNOWTREE) && growthMap.getTile(sf::Vector2f(x+1,y)) == t) {
+			o *= 10;
+			treeGrid.setTile(x,   y-1, 10+o);
+			treeGrid.setTile(x+1, y-1, 11+o);
+			treeGrid.setTile(x,   y-2, 12+o);
+			treeGrid.setTile(x+1, y-2, 13+o);
+			treeGrid.setTile(x,   y-3, 14+o);
+			treeGrid.setTile(x+1, y-3, 15+o);
+			treeGrid.setTile(x,   y-4, 16+o);
+			treeGrid.setTile(x+1, y-4, 17+o);
+		}
+
+		x += 2 + std::rand() / ((RAND_MAX + 1u) / 3);
 	}
-	LargeTileMap treeMap(&treeTexture, 64, 64, new Indexer(&treeGrid, treeDisplayIndex, -1), TREEMAP);
-	UpdateList::addNodes(treeMap.getNodes());
+
+	//Render decor map
+	Indexer decor(&decorGrid, decorDisplayIndex, -1);
+	display.addRandomizer(&decorRandomIndex);
+	LargeTileMap decorMap(&decorTexture, 32, 32, &decor, TREEMAP);
+	decorMap.setScales(sf::Vector2f(2, 2));
+	UpdateList::addNodes(decorMap.getNodes());
 
 	//Player
 	Player player(collisionMap, frictionMap);
@@ -83,7 +116,7 @@ int main() {
 	UpdateList::addNode(&player);
 
 	//Place player and boxes
-	collisionMap.mapGrid([&player, &blocksTexture, &collisionMap, &frictionMap](uint c, sf::Vector2f pos) {
+	collisionMap.mapGrid([&player, &blocksTexture, &collisionMap, &frictionMap, &treeGrid](uint c, sf::Vector2f pos) {
 		uint s = c - SNOW_OFFSET;
 		if(c == 'P' && player.getPosition() == sf::Vector2f(0,0))
 			player.setPosition(pos + sf::Vector2f(32, 16));
@@ -91,7 +124,15 @@ int main() {
 			new MovableBox(collisionMap, frictionMap, c, pos + sf::Vector2f(32, 16), &blocksTexture);
 		else if(c == '_' || s == '_')
 			new Button(pos + sf::Vector2f(32, 60), false);
+		else if(c == 't')
+			treeGrid.setTile(pos.x / 64, pos.y / 64, 3);
+		else if(s == 't')
+			treeGrid.setTile(pos.x / 64, pos.y / 64, 4);
 	});
+
+	//Render tree map
+	LargeTileMap treeMap(&treeTexture, 64, 64, new Indexer(&treeGrid, treeDisplayIndex, -1), TREEMAP);
+	UpdateList::addNodes(treeMap.getNodes());
 
 	//Finish engine setup
 	UpdateList::staticLayer(MAP);

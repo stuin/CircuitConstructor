@@ -14,11 +14,13 @@ class Player : public GravityNode {
 	float zoomLevel = 3.0;
 	float zoomTarget = 3.0;
 
+	const int scaleFactor = 3;
+
 	Node *camera = NULL;
 
 public:
 
-	Player(Indexer _collision, Indexer _friction) : GravityNode(_collision, _friction, PLAYER, sf::Vector2i(16, 20)),
+	Player(Indexer _collision, Indexer _friction) : GravityNode(_collision, _friction, PLAYER, sf::Vector2i(17, 26)),
 		moveInput("/movement", INPUT, this), miscInput(miscLayout, INPUT, this) {
 
 		camera = new Node(INPUT, sf::Vector2i(450, 250), true, this);
@@ -34,7 +36,7 @@ public:
 		};
 		UpdateList::setCamera(_player->camera, sf::Vector2f(450, 250) * zoomLevel);
 
-		setScale(sf::Vector2f(4,4));
+		setScale(sf::Vector2f(scaleFactor, scaleFactor));
 		isPlayer = true;
 		snapSpeed = 6;
 		weight = 0.01;
@@ -50,9 +52,9 @@ public:
 		UpdateList::hideLayer(TEMPMAP, section == NULL || !section->trigger);
 
 		if(velocity.x < 0)
-			setScale(sf::Vector2f(-4,4));
+			setScale(sf::Vector2f(-scaleFactor, scaleFactor));
 		else if(velocity.x > 0)
-			setScale(sf::Vector2f(4,4));
+			setScale(sf::Vector2f(scaleFactor, scaleFactor));
 
 		//Slide camera
 		if(camera->getPosition() != sf::Vector2f(0,-64)) {
