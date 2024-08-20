@@ -23,24 +23,39 @@ int main() {
 	sf::Texture foregroundTexture;
 	sf::Texture playerTexture;
 	sf::Texture blocksTexture;
-	sf::Texture backgroundTexture;
 	sf::Texture menuButtonsTexture;
+	sf::Texture backgroundTexture1;
+	sf::Texture backgroundTexture2;
+	sf::Texture backgroundTexture3;
+	sf::Texture backgroundTexture4;
 	UpdateList::loadTexture(&worldTexture, "res/textures/world_tiles.png");
 	UpdateList::loadTexture(&decorTexture, "res/textures/decor_tiles.png");
 	UpdateList::loadTexture(&treeTexture, "res/textures/trees.png");
 	UpdateList::loadTexture(&foregroundTexture, "res/textures/foreground_tiles.png");
 	UpdateList::loadTexture(&playerTexture, "res/textures/character.png");
 	UpdateList::loadTexture(&blocksTexture, "res/textures/blocks.png");
-	UpdateList::loadTexture(&backgroundTexture, "res/textures/background.png");
 	UpdateList::loadTexture(&menuButtonsTexture, "res/textures/menu_buttons.png");
+	UpdateList::loadTexture(&backgroundTexture1, "res/textures/background1.png");
+	UpdateList::loadTexture(&backgroundTexture2, "res/textures/background2.png");
+	UpdateList::loadTexture(&backgroundTexture3, "res/textures/background3.png");
+	UpdateList::loadTexture(&backgroundTexture4, "res/textures/background4.png");
 
 	sf::Font font;
 	font.loadFromFile("res/goudy_mediaeval_regular.ttf");
 
-	//Load background
-	Node background(BACKGROUND, sf::Vector2i(1920, 1080));
-	background.setTexture(backgroundTexture);
-	UpdateList::addNode(&background);
+	//Load backgrounds
+	Node background1(BACKGROUND, sf::Vector2i(4096, 4096));
+	Node background2(BACKGROUND, sf::Vector2i(4096, 4096));
+	Node background3(BACKGROUND, sf::Vector2i(4096, 4096));
+	Node background4(BACKGROUND, sf::Vector2i(4096, 4096));
+	background1.setTexture(backgroundTexture1);
+	background2.setTexture(backgroundTexture2);
+	background3.setTexture(backgroundTexture3);
+	background4.setTexture(backgroundTexture4);
+	UpdateList::addNode(&background4);
+	UpdateList::addNode(&background3);
+	UpdateList::addNode(&background2);
+	UpdateList::addNode(&background1);
 
 	//Load base tile maps
 	GridManager worldGrid("res/world.json", SECTION, sf::Vector2i(64, 64));
@@ -74,12 +89,12 @@ int main() {
 			y += 1;
 		}
 
-		int r = std::rand() / ((RAND_MAX + 1u) / 8);
+		int r = std::rand() / ((RAND_MAX + 1u) / 6);
 		int t = growthMap.getTile(sf::Vector2f(x,y));
 		int o = (t == SNOWTREE) ? 1 : 0;
 		if(t == ROCK || t == SNOWROCK)
 			decorGrid.setTile(x, y-1, 'r'+(t == SNOWROCK) ? SNOW_OFFSET : 0);
-		else if((t == TREE || t == SNOWTREE) && r < 4) {
+		else if((t == TREE || t == SNOWTREE) && r < 3) {
 			switch(r) {
 			case 0:
 				decorGrid.setTile(x, y-1, 'f'+o*SNOW_OFFSET);
@@ -88,10 +103,14 @@ int main() {
 				decorGrid.setTile(x, y-1, o?'p'+SNOW_OFFSET : 'f');
 				break;
 			case 2:
-				decorGrid.setTile(x, y-1, 'b'+o*SNOW_OFFSET);
-				break;
-			case 3:
-				treeGrid.setTile(x, y-1, 1+o);
+				if(wide) {
+					o *= 10;
+					treeGrid.setTile(x,   y-1, 30+o);
+					treeGrid.setTile(x+1, y-1, 31+o);
+					treeGrid.setTile(x,   y-2, 32+o);
+					treeGrid.setTile(x+1, y-2, 33+o);
+				} else
+					decorGrid.setTile(x, y-1, 'b'+o*SNOW_OFFSET);
 				break;
 			}
 		} else if(wide && (t == TREE || t == SNOWTREE) && growthMap.getTile(sf::Vector2f(x+1,y)) == t) {
@@ -155,7 +174,10 @@ int main() {
 	Player player(collisionMap, frictionMap, &font);
 	player.setTexture(playerTexture);
 	player.setPosition(sf::Vector2f(0,0));
-	background.setParent(&player);
+	player.background1 = &background1;
+	player.background2 = &background2;
+	player.background3 = &background3;
+	player.background4 = &background4;
 	UpdateList::addNode(&player);
 
 	//Place player and boxes
@@ -169,11 +191,17 @@ int main() {
 			new Button(pos + sf::Vector2f(32, 60), false);
 		else if(c == ',' || s == ',')
 			new Button(pos + sf::Vector2f(32, 60), true);
-		else if(c == 't')
-			treeGrid.setTile(pos.x / 64, pos.y / 64, 3);
-		else if(s == 't')
-			treeGrid.setTile(pos.x / 64, pos.y / 64, 4);
-		else if(c == '>' || s == '>' || c == '<' || s == '<' || c == 'f' || s == 'f') {
+		else if(c == 't') {
+			treeGrid.setTile(pos.x / 64,   pos.y / 64, 50);
+			treeGrid.setTile(pos.x / 64+1, pos.y / 64, 51);
+			treeGrid.setTile(pos.x / 64,   pos.y / 64-1, 52);
+			treeGrid.setTile(pos.x / 64+1, pos.y / 64-1, 53);
+		} else if(s == 't') {
+			treeGrid.setTile(pos.x / 64,   pos.y / 64, 60);
+			treeGrid.setTile(pos.x / 64+1, pos.y / 64, 61);
+			treeGrid.setTile(pos.x / 64,   pos.y / 64-1, 62);
+			treeGrid.setTile(pos.x / 64+1, pos.y / 64-1, 63);
+		} else if(c == '>' || s == '>' || c == '<' || s == '<' || c == 'f' || s == 'f') {
 			Node *sign = new Node(SIGN, sf::Vector2i(64, 64));
 			sign->setPosition(pos + sf::Vector2f(32, 32));
 			UpdateList::addNode(sign);
@@ -187,6 +215,7 @@ int main() {
 	Menu menu(&menuButtonsTexture, &player);
 
 	//Finish engine setup
+	UpdateList::staticLayer(BACKGROUND);
 	UpdateList::staticLayer(PLAYER);
 	UpdateList::staticLayer(INPUT);
 	UpdateList::staticLayer(TEXT);

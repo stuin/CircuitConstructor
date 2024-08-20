@@ -20,14 +20,22 @@ class Player : public GravityNode {
 	DrawNode *textNode;
 	bool textVisible = false;
 
+	bool lastTrigger = false;
+	bool triggerOverride = false;
+
 	Node *camera = NULL;
 	float zoomLevel = 3.0;
 	float zoomTarget = 3.0;
 
-	bool lastTrigger = false;
-	bool triggerOverride = false;
+	sf::Vector2f lowCorner = sf::Vector2f(0,0);
+	sf::Vector2f highCorner = sf::Vector2f(0,0);
+	sf::Vector2f center = sf::Vector2f(0,0);
 
 public:
+	Node *background1 = NULL;
+	Node *background2 = NULL;
+	Node *background3 = NULL;
+	Node *background4 = NULL;
 
 	Player(Indexer _collision, Indexer _friction, sf::Font *font) : GravityNode(_collision, _friction, PLAYER, sf::Vector2i(17, 26)),
 		moveInput("/movement", INPUT, this), miscInput(miscLayout, INPUT, this) {
@@ -42,6 +50,12 @@ public:
 		textNode->setPosition(sf::Vector2f(8, 0));
 		UpdateList::addNode(textBackground);
 		UpdateList::addNode(textNode);
+
+		lowCorner = sf::Vector2f(0, _collision.getSize().y * _collision.getScale().y);
+		//lowCorner.y = std::max(lowCorner.y, 4096.0f);
+		highCorner = sf::Vector2f(_collision.getSize().x * _collision.getScale().x * 1.5, 0);
+		center = sf::Vector2f(highCorner.x / 2, lowCorner.y / 2);
+		std::cout << _collision.getSize().x * _collision.getScale().x << "," << _collision.getSize().y * _collision.getScale().y << "\n";
 
 		Player *_player = this;
 		miscInput.pressedFunc = [_player](int i) {
@@ -97,6 +111,17 @@ public:
 			if(std::abs(target.x) > std::abs(target2.x) && std::abs(target.x) > std::abs(target2.x))
 				target = target2;
 			camera->setPosition(camera->getPosition() + target);
+		}
+
+		if(background1 != NULL) {
+			background1->setPosition(sf::Vector2f(lerp(center.x, camera->getGPosition().x, 0.7), lerp(center.y, camera->getGPosition().y, 0.7)));
+			background2->setPosition(sf::Vector2f(lerp(center.x, camera->getGPosition().x, 0.8), lerp(center.y, camera->getGPosition().y, 0.8)));
+			background3->setPosition(sf::Vector2f(lerp(center.x, camera->getGPosition().x, 0.9), lerp(center.y, camera->getGPosition().y, 0.9)));
+			background4->setPosition(sf::Vector2f(lerp(center.x, camera->getGPosition().x, 1), lerp(center.y, camera->getGPosition().y, 1)));
+
+			//background1->setScale(sf::Vector2f(1/0.7, 1/0.7));
+			//background2->setScale(sf::Vector2f(1/0.8, 1/0.8));
+			//background3->setScale(sf::Vector2f(1/0.9, 1/0.9));
 		}
 
 		//Update zoom level
@@ -165,5 +190,9 @@ public:
 			}
 			Settings::save("res/settings.json");
 		}
+	}
+
+	float lerp(float a, float b, float f) {
+	    return (a * (1.0 - f)) + (b * f);
 	}
 };

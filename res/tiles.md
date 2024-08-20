@@ -12,7 +12,10 @@ Dirt/grass blocks can be swapped out for snow variants.
 | \    | grass slope		| SLOPELEFT |
 | '    | dirt platform  	| PLATFORM  |
 | []   | grass edge     	| FULL      |
-| ]    | grass edge     	| FULL      |
+| {}   | ice upper edge  	| FULL 		|
+| =    | ice upper middle  	| FULL 		|
+| ()   | ice lower edge  	| PLATFORM 	|
+| u    | ice lower middle  	| PLATFORM 	|
 | ""   | wood platform  	| PLATFORM  |
 | T    | supported platform | PLATFORM  |
 | N    | wood supports 		| EMPTY  	|
@@ -22,6 +25,10 @@ Dirt/grass blocks can be swapped out for snow variants.
 | f    | flag 				| EMPTY  	|
 | <    | sign 				| EMPTY  	|
 | >    | sign 				| EMPTY  	|
+| b    | bones				| EMPTY  	|
+| ^    | icicles			| EMPTY  	|
+| t    | tent  				| EMPTY 	|
+| ?    | invisible barrier  | FULL 		|
 | ~    | hidden platform  	| PLATFORM? |
 | %    | hidden door  		| FULL? 	|
 | P    | player spawn  		| EMPTY 	|
