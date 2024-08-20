@@ -25,14 +25,14 @@ int main() {
 	sf::Texture blocksTexture;
 	sf::Texture backgroundTexture;
 	sf::Texture menuButtonsTexture;
-	UpdateList::loadTexture(&worldTexture, "res/world_tiles.png");
-	UpdateList::loadTexture(&decorTexture, "res/decor_tiles.png");
-	UpdateList::loadTexture(&treeTexture, "res/trees.png");
-	UpdateList::loadTexture(&foregroundTexture, "res/foreground_tiles.png");
-	UpdateList::loadTexture(&playerTexture, "res/character.png");
-	UpdateList::loadTexture(&blocksTexture, "res/blocks.png");
-	UpdateList::loadTexture(&backgroundTexture, "res/background.png");
-	UpdateList::loadTexture(&menuButtonsTexture, "res/menu_buttons.png");
+	UpdateList::loadTexture(&worldTexture, "res/textures/world_tiles.png");
+	UpdateList::loadTexture(&decorTexture, "res/textures/decor_tiles.png");
+	UpdateList::loadTexture(&treeTexture, "res/textures/trees.png");
+	UpdateList::loadTexture(&foregroundTexture, "res/textures/foreground_tiles.png");
+	UpdateList::loadTexture(&playerTexture, "res/textures/character.png");
+	UpdateList::loadTexture(&blocksTexture, "res/textures/blocks.png");
+	UpdateList::loadTexture(&backgroundTexture, "res/textures/background.png");
+	UpdateList::loadTexture(&menuButtonsTexture, "res/textures/menu_buttons.png");
 
 	sf::Font font;
 	font.loadFromFile("res/goudy_mediaeval_regular.ttf");
@@ -198,6 +198,7 @@ int main() {
 	if (!music.openFromFile("res/snow_game_jam.mp3"))
 	    return -1;
 	music.setLoop(true);
+	music.setVolume(Settings::getInt("/music_volume"));
 	music.play();
 
 	UpdateList::startEngine("Climbing Blocks");

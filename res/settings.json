@@ -1,7 +1,9 @@
 {
     "controls": {
         "menu": "ESCAPE",
+        "menu&1": "JOYSTICKSTART",
         "reset_room": "P",
+        "reset_room&1": "JOYSTICKB",
         "zoom_in": "WHEELUP",
         "zoom_out": "WHEELDOWN"
     },
@@ -13,8 +15,10 @@
         "left": "A",
         "right": "S",
         "up": "W",
-        "up&1": "SPACE"
+        "up&1": "SPACE",
+        "up&2": "JOYSTICKA"
     },
+    "music_volume": 100,
     "save": {
         "active": false,
         "section": 0,

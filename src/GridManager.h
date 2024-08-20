@@ -126,9 +126,8 @@ public:
 				std::cout << "Section missing id\n";
 			else if(sections[id] != NULL)
 				std::cout << "Duplicate section id\n";
-			else {
+			else
 				sections[id] = next;
-			}
 		}
 
 		readNeighbors(0, root);
@@ -137,7 +136,7 @@ public:
 		height -= y;
 		std::cout << "\n" << x << "," << y << "," << width << "," << height << "\n";
 
-		grid = new GridMaker(width-x, height-y);
+		grid = new GridMaker(width, height);
 		for(int i = 0; i < sections.size(); i++) {
 			next = sections[i];
 			if(next != NULL) {
@@ -158,7 +157,7 @@ public:
 		x = std::min(x, prev->x);
 		y = std::min(y, prev->y);
 
-		if(prev->upId != 0 && !prev->hasEdge(UP)) {
+		if(prev->upId != 0 && !prev->hasEdge(UP) && prev->upId < sections.size()) {
 			next = sections[prev->upId];
 			if(next != NULL) {
 				root->addVertex(UP, next, DOWN);
@@ -170,7 +169,7 @@ public:
 				readNeighbors(prev->upId, next);
 			}
 		}
-		if(prev->rightId != 0 && !prev->hasEdge(RIGHT)) {
+		if(prev->rightId != 0 && !prev->hasEdge(RIGHT) && prev->rightId < sections.size()) {
 			next = sections[prev->rightId];
 			if(next != NULL) {
 				root->addVertex(RIGHT, next, LEFT);
@@ -182,7 +181,7 @@ public:
 				readNeighbors(prev->rightId, next);
 			}
 		}
-		if(prev->downId != 0 && !prev->hasEdge(DOWN)) {
+		if(prev->downId != 0 && !prev->hasEdge(DOWN) && prev->downId < sections.size()) {
 			next = sections[prev->downId];
 			if(next != NULL) {
 				root->addVertex(DOWN, next, UP);
@@ -194,7 +193,7 @@ public:
 				readNeighbors(prev->downId, next);
 			}
 		}
-		if(prev->leftId != 0 && !prev->hasEdge(LEFT)) {
+		if(prev->leftId != 0 && !prev->hasEdge(LEFT) && prev->leftId < sections.size()) {
 			next = sections[prev->leftId];
 			if(next != NULL) {
 				root->addVertex(LEFT, next, RIGHT);

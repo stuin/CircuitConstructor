@@ -1,17 +1,23 @@
 {
+	"controls": {
+		"zoom_in": "WHEELUP",
+		"zoom_out": "WHEELDOWN",
+		"reset_room": "R",
+        "reset_room&1": "JOYSTICKB",
+		"menu": "ESCAPE",
+        "menu&1": "JOYSTICKSTART",
+        "reset_room": "P"
+	},
 	"movement": {
 		"up": "W",
+        "up&1": "SPACE",
+        "up&2": "JOYSTICKA",
 		"down": "S",
 		"left": "A",
 		"right": "D",
 		"joystick": 1
 	},
-	"controls": {
-		"zoom_in": "WHEELUP",
-		"zoom_out": "WHEELDOWN",
-		"reset_room": "R",
-		"menu": "ESCAPE"
-	},
+    "music_volume": 100,
 	"save": {
 		"active": false,
 		"section": 0,

@@ -25,5 +25,5 @@ zip -r "$output.zip" "$output.out" "$output.exe" "openal32.dll" res/
 
 mv dev_settings.json res/settings.json
 rm "$output.out"
-#rm "$output.exe"
+rm "$output.exe"
 

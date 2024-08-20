@@ -28,7 +28,7 @@
 		},
 		{
 			"id": 4,
-			"file": "res/world/Grassy_area_1.txt",
+			"file": "res/world/plain1.txt",
 			"right": 5
 		},
 		{
@@ -53,30 +53,99 @@
 		},
 		{
 			"id": 8,
-			"file": "res/world/hill1.1.txt",
+			"file": "res/world/hill1.txt",
 			"right": 9,
 			"y_offset": -6,
 			"zoom": 4.0
 		},
 		{
 			"id": 9,
-			"file": "res/world/hill1.2_ladder.txt",
+			"file": "res/puzzles/large1_pit.txt",
 			"right": 10,
 			"y_offset": -4,
 			"zoom": 6.0
 		},
 		{
 			"id": 10,
-			"file": "res/puzzles/button_puzzle2.txt",
-			"sign_text": "blocks from different flags can't be pushed on different bridges",
+			"file": "res/world/plain1.txt",
+			"right": 49
+		},
+		{
+			"id": 11,
+			"file": "res/puzzles/large2_overhead1.txt2",
 			"zoom": 4.0,
-			"right": 50,
+			"right": 12,
 			"y_offset": -4
 		},
 		{
+			"id": 12,
+			"file": "res/puzzles/large2_overhead2.txt2",
+			"zoom": 4.0,
+			"right": 49,
+			"y_offset": 0
+		},
+		{
+			"id": 49,
+			"file": "res/world/plain2.txt",
+			"zoom": 3.0,
+			"right": 50,
+			"y_offset": 2,
+			"x_offset": -1
+		},
+		{
 			"id": 50,
-			"file": "res/puzzles/tutorial4_door.txt",
-			"y_offset": -4
+			"file": "res/puzzles/climbing1_door.txt",
+			"up": 55,
+			"y_offset": -1
+		},
+		{
+			"id": 55,
+			"file": "res/world/upwards1.txt",
+			"up": 51
+		},
+		{
+			"id": 51,
+			"file": "res/puzzles/climbing2_invert.txt",
+			"right": 52,
+			"invert_trigger": true
+		},
+		{
+			"id": 52,
+			"file": "res/world/hill2.txt",
+			"right": 53,
+			"y_offset": -5
+		},
+		{
+			"id": 53,
+			"file": "res/puzzles/weight1_ladder.txt",
+			"right": 54,
+			"y_offset": -5
+		},
+		{
+			"id": 54,
+			"file": "res/puzzles/weight2_multiple.txt",
+			"right": 56,
+			"y_offset": -2,
+			"sign_text": "Some blocks are too heavy to move together"
+		},
+		{
+			"id": 56,
+			"file": "res/world/plain1.txt",
+			"right": 57,
+			"y_offset": 1
+		},
+		{
+			"id": 57,
+			"file": "res/puzzles/weight3_ceiling.txt",
+			"right": 60,
+			"y_offset": -5
+		},
+		{
+			"id": 60,
+			"file": "res/world/hill1.txt",
+			"y_offset": -6,
+			"zoom": 4.0,
+			"tile_offset": 100
 		}
 	]
 }
