@@ -3,17 +3,10 @@
 		{
 			"id": 0,
 			"file": "res/world/start_area.txt",
-			"left": 1,
+			"left": 2,
 			"right": 3,
 			"zoom": 3.0,
 			"sign_text": "Use blocks to build a path up"
-		},
-		{
-			"id": 1,
-			"file": "res/world/test_grass.txt",
-			"left": 2,
-			"grab_camera": true,
-			"zoom": 6.0
 		},
 		{
 			"id": 2,

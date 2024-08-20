@@ -17,6 +17,7 @@ class GravityNode : public Node {
 	const int slideMax = 200;
 	const int slideReverse = 2;
 	const int pushPower = 20;
+	const bool showDebug = false;
 
 public:
 	Indexer collision;
@@ -49,40 +50,47 @@ public:
 		sf::Vector2f footR = foot + sf::Vector2f(getSize().x / 2, 0);
 		foot.y += 6;
 
+		if(!isPlayer && showDebug)
+			std::cout << velocity.x << "," << velocity.y << "> ";
+
 		//Friction
 		float friction = (frictionMap.getTile(foot) / 100.0) * frictionValue;
-		friction = std::clamp(0.0f, friction, 1.0f);
-		if(friction < 1 && collision.getTile(foot) != EMPTY) {
+		friction = std::clamp(0.01f, friction, 1.0f);
+		if(friction < 1 && (collision.getTile(foot) != EMPTY ||
+			collision.getTile(footL) == SLOPELEFT || collision.getTile(footR) == SLOPERIGHT)) {
+
 			velocity.x *= friction;
 			velocity.x += horizontalSpeed * (1.0 - friction/3) * time;
 
 			if((collision.getTile(footL) == SLOPELEFT || collision.getTile(foot) == SLOPELEFT) && velocity.x > -slideReverse) {
 				velocity.x += slideSpeed * (1 - friction) * std::min(pushWeight*2, 1.0f) * time;
 				velocity.x = std::min(velocity.x, (float)(slideMax * time));
-				velocity.y += velocity.x;
 			}
 			if((collision.getTile(footR) == SLOPERIGHT || collision.getTile(foot) == SLOPERIGHT) && velocity.x < slideReverse) {
 				velocity.x -= slideSpeed * (1 - friction) * std::min(pushWeight*2, 1.0f) * time;
 				velocity.x = std::max(velocity.x, -(float)(slideMax * time));
-				velocity.y -= velocity.x;
 			}
-
 		}
+
+		if(!isPlayer && showDebug)
+			std::cout << velocity.x << "," << velocity.y << "> ";
 
 		//Check for wall
 		tempPlatforms = section != NULL && (section->trigger != section->invertTrigger);
-		sf::Vector2f collisionOffset = velocity + sf::Vector2f(
-			velocity.x / std::abs(velocity.x) * getSize().x / 2, getSize().y / 4);
+		sf::Vector2f collisionOffset = velocity + sf::Vector2f(velocity.x / std::abs(velocity.x) * getSize().x / 2, getSize().y / 4);
 		if(verticalSpeed != 0 || foot.y - 8 < collision.snapPosition(foot).y) {
 			if(collision.getTile(pos + collisionOffset) == FULL)
 				velocity.x = 0;
 			else if(collision.getTile(pos + collisionOffset) == TEMPFULL && tempPlatforms)
 				velocity.x = 0;
-			else if(velocity.x > 0 && collision.getTile(pos + collisionOffset) == SLOPELEFT)
+			else if(velocity.x > 0 && collision.getTile(pos) != SLOPELEFT && collision.getTile(pos + collisionOffset) == SLOPELEFT)
 				velocity.x = 0;
-			else if(velocity.x < 0 && collision.getTile(pos + collisionOffset) == SLOPERIGHT)
+			else if(velocity.x < 0 && collision.getTile(pos) != SLOPERIGHT && collision.getTile(pos + collisionOffset) == SLOPERIGHT)
 				velocity.x = 0;
 		}
+
+		if(!isPlayer && showDebug)
+			std::cout << velocity.x << "," << velocity.y << "> ";
 
 		//Falling and jumping
 		foot += velocity;
@@ -116,6 +124,9 @@ public:
 			velocity.y += verticalSpeed * time;
 		}
 
+		if(!isPlayer && showDebug)
+			std::cout << velocity.x << "," << velocity.y << "> ";
+
 		//Snap to ground
 		int tile = collision.getTile(foot);
 		if(tile != EMPTY && !(jumpInput && jumpTime < 0.2) &&
@@ -125,14 +136,12 @@ public:
 			sf::Vector2f foot2 = foot - sf::Vector2f(0, 8);
 
 			//Allow for upwards slope
-			if(collision.getTile(foot) != EMPTY &&
+			if(tile != EMPTY && tile != SLOPELEFT && tile != SLOPERIGHT &&
 				(collision.getTile(foot2) == SLOPELEFT || collision.getTile(foot2) == SLOPERIGHT)) {
 				foot = foot2;
 				ground = collision.snapPosition(foot);
 			}
 			velocity.y += ground.y - pos.y - getSize().y/2;
-			//if(velocity.y > 0)
-			//	velocity.y = 0;
 
 			if(collision.getTile(foot) == SLOPELEFT)
 				velocity.y -= ground.x - pos.x;
@@ -146,6 +155,9 @@ public:
 				jumpTime = 0;
 			}
 		}
+
+		if(!isPlayer && showDebug)
+			std::cout << velocity.x << "," << velocity.y << "> ";
 
 		pushing.clear();
 		pushWeight = 0;
@@ -183,6 +195,9 @@ public:
 			else
 				velocity.x = std::max(other->horizontalSpeed * (float)time, velocity.x);
 		}
+
+		if(!isPlayer && showDebug)
+			std::cout << velocity.x << "," << velocity.y << "\n";
 
 		horizontalSpeed = velocity.x / time;
 		blocked = std::abs(input.x) > 0.1 && std::abs(velocity.x) < 0.1;

@@ -7,7 +7,7 @@
         "zoom_in": "WHEELUP",
         "zoom_out": "WHEELDOWN"
     },
-    "debug_block_rotation": false,
+    "debug_block_rotation": true,
     "debug_sections": false,
     "movement": {
         "down": "R",
