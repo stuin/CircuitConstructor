@@ -61,6 +61,15 @@
 		{
 			"id": 9,
 			"file": "res/world/hill1.2_ladder.txt",
+			"right": 10,
+			"y_offset": -4,
+			"zoom": 6.0
+		},
+		{
+			"id": 10,
+			"file": "res/puzzles/button_puzzle2.txt",
+			"sign_text": "blocks from different flags can't be pushed on different bridges",
+			"zoom": 4.0,
 			"right": 50,
 			"y_offset": -4
 		},
