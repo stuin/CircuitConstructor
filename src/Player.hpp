@@ -118,10 +118,23 @@ public:
 			setScale(sf::Vector2f(scaleFactor, scaleFactor));
 
 		//Animation
-		int a = std::abs(input.x) > 0.1;
-		if(a != animationSet)
-			frame = 0;
-		animationSet = a;
+		if(input.y < -0.5 && velocity.y < -0.2) {
+			if(animationSet != 2) {
+				frame = 0;
+				animationSet = 2;
+			}
+		} else if(velocity.y > 5 || (input.y < -0.5 && animationSet == 2 && frame > 2)) {
+			if(animationSet != 2) {
+				frame = 3;
+				animationSet = 2;
+			}
+		} else if(std::abs(input.x) > 0.1) {
+			if(animationSet != 1) {
+				frame = 0;
+				animationSet = 1;
+			}
+		} else
+			animationSet = 0;
 
 		if((nextTime -= time) <= 0) {
             nextTime = delay;
@@ -164,6 +177,7 @@ public:
 		}
 
 		if(!textVisible)
+			textBackground->setHidden(true);
 		textVisible = false;
 	}
 
