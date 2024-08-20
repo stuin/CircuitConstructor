@@ -28,6 +28,7 @@ Dirt/grass blocks can be swapped out for snow variants.
 | b    | bones				| EMPTY  	|
 | ^    | icicles			| EMPTY  	|
 | t    | tent  				| EMPTY 	|
+| E    | yeti  				| EMPTY 	|
 | ?    | invisible barrier  | FULL 		|
 | ~    | hidden platform  	| PLATFORM? |
 | %    | hidden door  		| FULL? 	|

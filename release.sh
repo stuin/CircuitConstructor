@@ -5,7 +5,7 @@ windows_libs="$windows_libs -lwinmm -lgdi32 -lopengl32 -lfreetype -lopenal32 -lF
 linux_libs="-lsfml-graphics -lsfml-window -lsfml-audio -lsfml-system -lX11"
 
 name="ClimbingBlocks"
-build="0.20"
+build="1.00"
 output="$name-$build"
 
 windows_cmd="x86_64-w64-mingw32-g++ $files -o $output.exe $options $windows_libs"

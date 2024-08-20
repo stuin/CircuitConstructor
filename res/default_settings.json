@@ -1,12 +1,9 @@
 {
 	"controls": {
-		"zoom_in": "WHEELUP",
-		"zoom_out": "WHEELDOWN",
 		"reset_room": "R",
         "reset_room&1": "JOYSTICKB",
 		"menu": "ESCAPE",
-        "menu&1": "JOYSTICKSTART",
-        "reset_room": "P"
+        "menu&1": "JOYSTICKSTART"
 	},
 	"movement": {
 		"up": "W",
@@ -23,7 +20,5 @@
 		"section": 0,
 		"x": 0,
 		"y": 0
-	},
-	"debug_sections": false,
-	"debug_block_rotation": false
+	}
 }

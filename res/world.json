@@ -3,15 +3,14 @@
 		{
 			"id": 0,
 			"file": "res/world/start_area.txt",
-			"left": 2,
 			"right": 3,
+			"left": 1,
 			"zoom": 3.0,
 			"sign_text": "Use blocks to build a path up"
 		},
 		{
-			"id": 2,
-			"file": "res/world/test_ice.txt",
-			"tile_offset": 100
+			"id": 1,
+			"file": "res/world/flat.txt"
 		},
 		{
 			"id": 3,
@@ -61,35 +60,14 @@
 		{
 			"id": 10,
 			"file": "res/world/plain1.txt",
-			"right": 49
-		},
-		{
-			"id": 11,
-			"file": "res/puzzles/large2_overhead1.txt2",
-			"zoom": 4.0,
-			"right": 12,
-			"y_offset": -4
-		},
-		{
-			"id": 12,
-			"file": "res/puzzles/large2_overhead2.txt2",
-			"zoom": 4.0,
-			"right": 49,
-			"y_offset": 0
-		},
-		{
-			"id": 49,
-			"file": "res/world/plain2.txt",
-			"zoom": 3.0,
 			"right": 50,
-			"y_offset": 2,
-			"x_offset": -1
+			"y_offset": 1
 		},
 		{
 			"id": 50,
 			"file": "res/puzzles/climbing1_door.txt",
 			"up": 55,
-			"y_offset": -1
+			"y_offset": -2
 		},
 		{
 			"id": 55,
@@ -124,12 +102,12 @@
 		{
 			"id": 56,
 			"file": "res/world/plain1.txt",
-			"right": 57,
+			"right": 60,
 			"y_offset": 1
 		},
 		{
 			"id": 57,
-			"file": "res/puzzles/weight3_ceiling.txt",
+			"file": "res/puzzles/weight3_ceiling.txt1",
 			"right": 60,
 			"y_offset": -5
 		},
@@ -137,7 +115,15 @@
 			"id": 60,
 			"file": "res/world/hill1.txt",
 			"y_offset": -6,
+			"right": 61,
 			"zoom": 4.0,
+			"tile_offset": 100
+		},
+		{
+			"id": 61,
+			"file": "res/world/peak.txt",
+			"y_offset": -9,
+			"zoom": 15.0,
 			"tile_offset": 100
 		}
 	]

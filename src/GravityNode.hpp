@@ -41,7 +41,7 @@ public:
 	}
 
 	sf::Vector2f gravityVelocity(sf::Vector2f input, double time) {
-		bool jumpInput = input.y < 0;
+		bool jumpInput = input.y < -0.5;
 		sf::Vector2f velocity = sf::Vector2f((input.x + pushDirection.x) * time, 0);
 		sf::Vector2f pos = getPosition();
 		sf::Vector2f foot = pos;

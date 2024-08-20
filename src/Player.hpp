@@ -31,13 +31,21 @@ class Player : public GravityNode {
 	sf::Vector2f highCorner = sf::Vector2f(0,0);
 	sf::Vector2f center = sf::Vector2f(0,0);
 
+	int frameWidth = 0;
+	int frameHeight = 0;
+	int animationSet = 0;
+    int maxFrames = 0;
+    int frame = 0;
+    double nextTime = 0;
+    double delay = -1;
+
 public:
 	Node *background1 = NULL;
 	Node *background2 = NULL;
 	Node *background3 = NULL;
 	Node *background4 = NULL;
 
-	Player(Indexer _collision, Indexer _friction, sf::Font *font) : GravityNode(_collision, _friction, PLAYER, sf::Vector2i(17, 26)),
+	Player(Indexer _collision, Indexer _friction, sf::Font *font) : GravityNode(_collision, _friction, PLAYER, sf::Vector2i(22, 29)),
 		moveInput("/movement", INPUT, this), miscInput(miscLayout, INPUT, this) {
 
 		textShape.setFillColor(sf::Color(0,0,0,200));
@@ -51,6 +59,11 @@ public:
 		UpdateList::addNode(textBackground);
 		UpdateList::addNode(textNode);
 
+		frameWidth = 22;
+		frameHeight = 29;
+		maxFrames = 8;
+		delay = 0.1;
+
 		lowCorner = sf::Vector2f(0, _collision.getSize().y * _collision.getScale().y);
 		//lowCorner.y = std::max(lowCorner.y, 4096.0f);
 		highCorner = sf::Vector2f(_collision.getSize().x * _collision.getScale().x * 1.5, 0);
@@ -59,9 +72,7 @@ public:
 
 		Player *_player = this;
 		miscInput.pressedFunc = [_player](int i) {
-			if(i < 2)
-				_player->zoomTarget = std::clamp(2.0, _player->zoomTarget + 0.2 * (i ? 1 : -1), 300.0);
-			else if(i == 2) {
+			if(i == 2) {
 				_player->setPosition(_player->enterPoint);
 				UpdateList::sendSignal(BOX, RESET_SECTION, _player->section);
 			} else if(i == 3) {
@@ -92,17 +103,36 @@ public:
 			}
 		}
 
-		sf::Vector2f velocity = gravityVelocity(moveInput.getDirection() * 320.0f, time);
+		sf::Vector2f input = moveInput.getDirection();
+		sf::Vector2f velocity = gravityVelocity(input * 320.0f, time);
 		setPosition(getPosition() + velocity);
 
 		UpdateList::hideLayer(TEMPMAP, section == NULL || (!triggerOverride && section->trigger == section->invertTrigger));
 		if(section != NULL && section->hasButton)
 			lastTrigger = section->trigger != section->invertTrigger;
 
+		//Flip horizontally
 		if(velocity.x < 0)
 			setScale(sf::Vector2f(-scaleFactor, scaleFactor));
 		else if(velocity.x > 0)
 			setScale(sf::Vector2f(scaleFactor, scaleFactor));
+
+		//Animation
+		int a = std::abs(input.x) > 0.1;
+		if(a != animationSet)
+			frame = 0;
+		animationSet = a;
+
+		if((nextTime -= time) <= 0) {
+            nextTime = delay;
+            frame++;
+
+            //Reset to start frame
+            if(frame == maxFrames)
+                frame = 0;
+
+            setTextureRect(sf::IntRect(frameWidth * frame, animationSet * frameHeight, frameWidth, frameHeight));
+        }
 
 		//Slide camera
 		if(camera->getPosition() != sf::Vector2f(0,-64)) {
@@ -113,15 +143,17 @@ public:
 			camera->setPosition(camera->getPosition() + target);
 		}
 
+		//Place backgrounds
 		if(background1 != NULL) {
-			background1->setPosition(sf::Vector2f(lerp(center.x, camera->getGPosition().x, 0.7), lerp(center.y, camera->getGPosition().y, 0.7)));
-			background2->setPosition(sf::Vector2f(lerp(center.x, camera->getGPosition().x, 0.8), lerp(center.y, camera->getGPosition().y, 0.8)));
-			background3->setPosition(sf::Vector2f(lerp(center.x, camera->getGPosition().x, 0.9), lerp(center.y, camera->getGPosition().y, 0.9)));
+			background1->setPosition(sf::Vector2f(lerp(center.x, camera->getGPosition().x, 0.85), lerp(center.y+600, camera->getGPosition().y+600, 0.85)));
+			background2->setPosition(sf::Vector2f(lerp(center.x, camera->getGPosition().x, 0.90), lerp(center.y+1500, camera->getGPosition().y+1500, 0.90)));
+			background3->setPosition(sf::Vector2f(lerp(center.x, camera->getGPosition().x, 0.95), lerp(center.y+1500, camera->getGPosition().y+1500, 0.95)));
 			background4->setPosition(sf::Vector2f(lerp(center.x, camera->getGPosition().x, 1), lerp(center.y, camera->getGPosition().y, 1)));
 
 			//background1->setScale(sf::Vector2f(1/0.7, 1/0.7));
-			//background2->setScale(sf::Vector2f(1/0.8, 1/0.8));
-			//background3->setScale(sf::Vector2f(1/0.9, 1/0.9));
+			background2->setScale(sf::Vector2f(1.3, 1.3));
+			background3->setScale(sf::Vector2f(1.3, 1.3));
+			background4->setScale(sf::Vector2f(1.3, 1.3));
 		}
 
 		//Update zoom level
@@ -132,7 +164,6 @@ public:
 		}
 
 		if(!textVisible)
-			textBackground->setHidden(true);
 		textVisible = false;
 	}
 
