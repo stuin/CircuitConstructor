@@ -17,12 +17,13 @@ Dirt/grass blocks can be swapped out for snow variants.
 | T    | supported platform | PLATFORM  |
 | N    | wood supports 		| EMPTY  	|
 | H    | ladder 			| PLATFORM  |
-| _    | pressure plate 	| EMPTY  	|
+| _    | box button 		| EMPTY  	|
+| ,    | player button 		| EMPTY  	|
 | f    | flag 				| EMPTY  	|
 | <    | sign 				| EMPTY  	|
 | >    | sign 				| EMPTY  	|
 | ~    | hidden platform  	| PLATFORM? |
-| ?    | inverse platform  	| PLATFORM? |
+| %    | hidden door  		| FULL? 	|
 | P    | player spawn  		| EMPTY 	|
 | w    | wood block  		| EMPTY 	|
 | i    | ice block  		| EMPTY 	|
@@ -42,7 +43,8 @@ Dirt/grass blocks can be swapped out for snow variants.
 	"y_offset": "Number of tiles to shift this section vertically, + for down, - for up",
 	"grab_camera": "Center camera on this section when player is inside",
 	"zoom": "Zoom factor when player is inside, 1.5 = default, + to zoom out, - to zoom in",
-	"sign_text": "Text to display above flags and signs"
+	"sign_text": "Text to display above flags and signs",
+	"invert_trigger": "Start with hidden platforms/doors shown"
 }
 
 

@@ -6,6 +6,7 @@ using json = nlohmann::json;
 #include "Skyrmion/VertexGraph.hpp"
 #include "Skyrmion/Settings.h"
 #include "Skyrmion/Node.h"
+#include "indexes.h"
 
 enum sides {
 	UP,
@@ -15,12 +16,10 @@ enum sides {
 };
 
 class GridSection : public Vertex<4>, public DrawNode {
-	int id;
-
 public:
+	int id;
 	std::string file;
 	int tileOffset = 0;
-	bool trigger = false;
 
 	std::string signText = "";
 	bool grabCamera = false;
@@ -36,13 +35,19 @@ public:
 	int x = 0;
 	int y = 0;
 
+	bool invertTrigger = false;
+	bool hasButton = false;
+	int triggers = 0;
+	bool trigger = false;
+
 	sf::RectangleShape rect;
 
 	GridSection(GridSection *root, json data, Layer layer) : Vertex(root), DrawNode(rect, layer) {
 
-		id = data.value("id", 0);
+		id = data.value("id", -1);
 		file = data.value("file", "");
 		tileOffset = data.value("tile_offset", 0);
+		invertTrigger = data.value("invert_trigger", false);
 
 		signText = data.value("sign_text", "");
 		grabCamera = data.value("grab_camera", false);
@@ -69,6 +74,7 @@ public:
 
 		setSize(sf::Vector2i(width, height));
 		setHidden(!Settings::getBool("/debug_sections"));
+		collideWith(BUTTON);
 	}
 
 	void updateSize(sf::Vector2i scale) {
@@ -79,6 +85,11 @@ public:
 		rect.setOutlineColor(sf::Color::Magenta);
 		rect.setOutlineThickness(1);
 		rect.setFillColor(sf::Color::Transparent);
+	}
+
+	void collide(Node *other) {
+		hasButton = true;
+		collideWith(BUTTON, false);
 	}
 };
 
@@ -106,7 +117,18 @@ public:
 		GridSection *next;
 		for(int i = 1; i < world["maps"].size(); i++) {
 			next = new GridSection(root, world["maps"][i], _layer);
-			sections.push_back(next);
+			int id = world["maps"][i].value("id", -1);
+
+			for(int j = sections.size() - 1; j < id; j++)
+				sections.push_back(NULL);
+
+			if(id < 0)
+				std::cout << "Section missing id\n";
+			else if(sections[id] != NULL)
+				std::cout << "Duplicate section id\n";
+			else {
+				sections[id] = next;
+			}
 		}
 
 		readNeighbors(0, root);
@@ -118,13 +140,15 @@ public:
 		grid = new GridMaker(width-x, height-y);
 		for(int i = 0; i < sections.size(); i++) {
 			next = sections[i];
-			next->x -= x;
-			next->y -= y;
-			next->updateSize(scale);
+			if(next != NULL) {
+				next->x -= x;
+				next->y -= y;
+				next->updateSize(scale);
 
-			//std::cout << next->file << " " << next->tileOffset << "\n";
-			//std::cout << next->x << "," << next->y << "," << next->width << "," << next->height << "\n";
-			grid->reload(next->file, next->tileOffset, sf::Rect<uint>(next->x, next->y, next->width, next->height));
+				//std::cout << next->file << " " << next->tileOffset << "\n";
+				//std::cout << next->x << "," << next->y << "," << next->width << "," << next->height << "\n";
+				grid->reload(next->file, next->tileOffset, sf::Rect<uint>(next->x, next->y, next->width, next->height));
+			}
 		}
 		//grid->printGrid();
 	}
@@ -136,50 +160,59 @@ public:
 
 		if(prev->upId != 0 && !prev->hasEdge(UP)) {
 			next = sections[prev->upId];
-			root->addVertex(UP, next, DOWN);
+			if(next != NULL) {
+				root->addVertex(UP, next, DOWN);
 
-			next->x += prev->x;
-			next->y += prev->y - next->height;
-			y = std::min(y, next->y);
+				next->x += prev->x;
+				next->y += prev->y - next->height;
+				y = std::min(y, next->y);
 
-			readNeighbors(prev->upId, next);
+				readNeighbors(prev->upId, next);
+			}
 		}
 		if(prev->rightId != 0 && !prev->hasEdge(RIGHT)) {
 			next = sections[prev->rightId];
-			root->addVertex(RIGHT, next, LEFT);
+			if(next != NULL) {
+				root->addVertex(RIGHT, next, LEFT);
 
-			next->x += prev->x + prev->width;
-			next->y += prev->y;
-			width = std::max(width, next->x + next->width);
+				next->x += prev->x + prev->width;
+				next->y += prev->y;
+				width = std::max(width, next->x + next->width);
 
-			readNeighbors(prev->rightId, next);
+				readNeighbors(prev->rightId, next);
+			}
 		}
 		if(prev->downId != 0 && !prev->hasEdge(DOWN)) {
 			next = sections[prev->downId];
-			root->addVertex(DOWN, next, UP);
+			if(next != NULL) {
+				root->addVertex(DOWN, next, UP);
 
-			next->x += prev->x;
-			next->y += prev->y + prev->height;
-			height = std::max(height, next->y + next->height);
+				next->x += prev->x;
+				next->y += prev->y + prev->height;
+				height = std::max(height, next->y + next->height);
 
-			readNeighbors(prev->downId, next);
+				readNeighbors(prev->downId, next);
+			}
 		}
 		if(prev->leftId != 0 && !prev->hasEdge(LEFT)) {
 			next = sections[prev->leftId];
-			root->addVertex(LEFT, next, RIGHT);
+			if(next != NULL) {
+				root->addVertex(LEFT, next, RIGHT);
 
-			next->x += prev->x - next->width;
-			next->y += prev->y;
-			x = std::min(x, next->x);
+				next->x += prev->x - next->width;
+				next->y += prev->y;
+				x = std::min(x, next->x);
 
-			readNeighbors(prev->leftId, next);
+				readNeighbors(prev->leftId, next);
+			}
 		}
 	}
 
 	std::vector<Node *> getNodes() {
         std::vector<Node *> nodes;
         for(GridSection *section : sections)
-            nodes.push_back(section);
+        	if(section != NULL)
+            	nodes.push_back(section);
         return nodes;
     }
 };

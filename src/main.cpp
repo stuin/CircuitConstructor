@@ -162,6 +162,8 @@ int main() {
 			new MovableBox(collisionMap, frictionMap, c, pos + sf::Vector2f(32, 16), &blocksTexture);
 		else if(c == '_' || s == '_')
 			new Button(pos + sf::Vector2f(32, 60), false);
+		else if(c == ',' || s == ',')
+			new Button(pos + sf::Vector2f(32, 60), true);
 		else if(c == 't')
 			treeGrid.setTile(pos.x / 64, pos.y / 64, 3);
 		else if(s == 't')

@@ -61,6 +61,12 @@
 		{
 			"id": 9,
 			"file": "res/world/hill1.2_ladder.txt",
+			"right": 50,
+			"y_offset": -4
+		},
+		{
+			"id": 50,
+			"file": "res/puzzles/tutorial4_door.txt",
 			"y_offset": -4
 		}
 	]

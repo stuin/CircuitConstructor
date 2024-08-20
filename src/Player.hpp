@@ -23,6 +23,9 @@ class Player : public GravityNode {
 	float zoomLevel = 3.0;
 	float zoomTarget = 3.0;
 
+	bool lastTrigger = false;
+	bool triggerOverride = false;
+
 public:
 
 	Player(Indexer _collision, Indexer _friction, sf::Font *font) : GravityNode(_collision, _friction, PLAYER, sf::Vector2i(17, 26)),
@@ -65,7 +68,9 @@ public:
 		sf::Vector2f velocity = gravityVelocity(moveInput.getDirection() * 320.0f, time);
 		setPosition(getPosition() + velocity);
 
-		UpdateList::hideLayer(TEMPMAP, section == NULL || !section->trigger);
+		UpdateList::hideLayer(TEMPMAP, section == NULL || (!triggerOverride && section->trigger == section->invertTrigger));
+		if(section != NULL && section->hasButton)
+			lastTrigger = section->trigger != section->invertTrigger;
 
 		if(velocity.x < 0)
 			setScale(sf::Vector2f(-scaleFactor, scaleFactor));
@@ -109,6 +114,13 @@ public:
 				camera->setGPosition(cameraPosition);
 				if(section->zoomLevel != 0)
 					zoomTarget = section->zoomLevel;
+
+				if(!triggerOverride && lastTrigger && !section->hasButton)
+					triggerOverride = true;
+				else {
+					triggerOverride = false;
+					lastTrigger = section->trigger != section->invertTrigger;
+				}
 			}
 		} else if(other->getLayer() == SIGN) {
 			if(section != NULL) {

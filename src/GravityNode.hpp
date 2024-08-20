@@ -70,10 +70,13 @@ public:
 		}
 
 		//Check for wall
+		tempPlatforms = section != NULL && (section->trigger != section->invertTrigger);
 		sf::Vector2f collisionOffset = velocity + sf::Vector2f(
 			velocity.x / std::abs(velocity.x) * getSize().x / 2, getSize().y / 4);
 		if(verticalSpeed != 0 || foot.y - 8 < collision.snapPosition(foot).y) {
 			if(collision.getTile(pos + collisionOffset) == FULL)
+				velocity.x = 0;
+			else if(collision.getTile(pos + collisionOffset) == TEMPFULL && tempPlatforms)
 				velocity.x = 0;
 			else if(velocity.x > 0 && collision.getTile(pos + collisionOffset) == SLOPELEFT)
 				velocity.x = 0;
@@ -85,9 +88,10 @@ public:
 		foot += velocity;
 		footL = foot - sf::Vector2f(getSize().x / 4, 0);
 		footR = foot + sf::Vector2f(getSize().x / 4, 0);
-		tempPlatforms = section != NULL && section->trigger;
-		if((collision.getTile(footL) == EMPTY || (collision.getTile(footL) == TEMPPLATFORM && !tempPlatforms))
-			&& (collision.getTile(footR) == EMPTY || (collision.getTile(footR) == TEMPPLATFORM && !tempPlatforms))) {
+		int tileL = collision.getTile(footL);
+		int tileR = collision.getTile(footR);
+		if((tileL == EMPTY || (tileL == TEMPPLATFORM || tileL == TEMPFULL) && !tempPlatforms) &&
+			(tileR == EMPTY || (tileR == TEMPPLATFORM || tileR == TEMPFULL) && !tempPlatforms)) {
 
 			if(jumpTime < 0.2 && jumpInput)
 				verticalSpeed -= jumpBoost;
@@ -113,8 +117,10 @@ public:
 		}
 
 		//Snap to ground
-		if(collision.getTile(foot) != EMPTY && !(jumpInput && jumpTime < 0.2)
-			&& (collision.getTile(foot) != TEMPPLATFORM || tempPlatforms)) {
+		int tile = collision.getTile(foot);
+		if(tile != EMPTY && !(jumpInput && jumpTime < 0.2) &&
+			((tile != TEMPPLATFORM && tile != TEMPFULL) || tempPlatforms)) {
+
 			sf::Vector2f ground = collision.snapPosition(foot);
 			sf::Vector2f foot2 = foot - sf::Vector2f(0, 8);
 

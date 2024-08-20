@@ -4,6 +4,8 @@ class MovableBox : public GravityNode {
 	sf::Vector2f pushDirection = sf::Vector2f(0,0);
 	sf::Vector2f startPosition;
 
+	GridSection *mainSection = NULL;
+
 public:
 	MovableBox(Indexer _collision, Indexer _friction, uint c, sf::Vector2f _startPosition, sf::Texture *blockTexture) :
 	GravityNode(_collision, _friction, BOX, sf::Vector2i(16, 16)), startPosition(_startPosition) {
@@ -58,14 +60,15 @@ public:
 
 	void collide(Node *other) {
 		if(other->getLayer() == SECTION) {
+			if(mainSection == NULL)
+				mainSection = (GridSection *) other;
 			section = (GridSection *) other;
-			collideWith(SECTION, false);
 		} else
 			addCollision((GravityNode*)other);
 	}
 
 	void recieveSignal(int id, Node *sender) {
-		if(id == RESET_SECTION && sender == section)
+		if(id == RESET_SECTION && (sender == section || sender == mainSection))
 			setPosition(startPosition);
 	}
 };

@@ -28,7 +28,8 @@ enum TileType {
 	PLATFORM,
 	SLOPELEFT,
 	SLOPERIGHT,
-	TEMPPLATFORM
+	TEMPPLATFORM,
+	TEMPFULL
 };
 
 enum GrowthType {
@@ -55,7 +56,8 @@ static const std::map<unsigned int, int> displayIndex = {
 	{'T', 1+24},
 	{'N', 7+24},
 	{'H', 6+24},
-	{'_', 8+24},
+	{'_', 2+24},
+	{',', 8+24},
 	{'f', 3+24},
 	{'b', 9+24},
 	{'>', 4+24},
@@ -72,7 +74,8 @@ static const std::map<unsigned int, int> displayIndex = {
 	{'T'+SNOW_OFFSET, 1+24},
 	{'N'+SNOW_OFFSET, 7+24},
 	{'H'+SNOW_OFFSET, 6+24},
-	{'_'+SNOW_OFFSET, 8+24},
+	{'_'+SNOW_OFFSET, 2+24},
+	{','+SNOW_OFFSET, 8+24},
 	{'f'+SNOW_OFFSET, 3+24},
 	{'b'+SNOW_OFFSET, 9+24},
 	{'>'+SNOW_OFFSET, 4+24},
@@ -107,11 +110,12 @@ static const std::map<unsigned int, int> collisionIndex = {
 	{'\'', PLATFORM},
 	{'[', FULL},
 	{']', FULL},
-	{',', EMPTY},
 	{'"', PLATFORM},
 	{'~', TEMPPLATFORM},
+	{'%', TEMPFULL},
 	{'T', PLATFORM},
 	{'_', EMPTY},
+	{',', EMPTY},
 	{'H', PLATFORM},
 	{' '+SNOW_OFFSET, EMPTY},
 	{'/'+SNOW_OFFSET, SLOPERIGHT},
@@ -121,10 +125,12 @@ static const std::map<unsigned int, int> collisionIndex = {
 	{'\''+SNOW_OFFSET, PLATFORM},
 	{'['+SNOW_OFFSET, FULL},
 	{']'+SNOW_OFFSET, FULL},
-	{','+SNOW_OFFSET, EMPTY},
 	{'"'+SNOW_OFFSET, PLATFORM},
+	{'~'+SNOW_OFFSET, TEMPPLATFORM},
+	{'%'+SNOW_OFFSET, TEMPFULL},
 	{'T'+SNOW_OFFSET, PLATFORM},
 	{'_'+SNOW_OFFSET, EMPTY},
+	{','+SNOW_OFFSET, EMPTY},
 	{'H'+SNOW_OFFSET, PLATFORM}
 };
 
@@ -142,7 +148,9 @@ static const std::map<unsigned int, int> frictionIndex = {
 
 static const std::map<unsigned int, int> tempDisplayIndex = {
 	{'~', 0+24},
-	{'~'+SNOW_OFFSET, 0+24}
+	{'%', 5+24},
+	{'~'+SNOW_OFFSET, 0+24},
+	{'%'+SNOW_OFFSET, 5+24}
 };
 
 static const std::map<unsigned int, int> treeGrowIndex = {

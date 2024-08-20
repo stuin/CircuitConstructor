@@ -1,6 +1,7 @@
 class Button : public Node {
 	GridSection *section = NULL;
 	bool reset = true;
+	bool trigger = false;
 
 public:
 	Button(sf::Vector2f pos, bool player) : Node(BUTTON, sf::Vector2i(30, 8), true) {
@@ -15,10 +16,13 @@ public:
 
 	void update(double time) {
 		if(section != NULL) {
-			if(reset)
-				section->trigger = false;
-			else
-				section->trigger = true;
+			if(reset && trigger)
+				section->triggers--;
+			else if(!reset && !trigger)
+				section->triggers++;
+			trigger = !reset;
+			section->triggers = std::max(0, section->triggers);
+			section->trigger = section->triggers > 0;
 			reset = true;
 		}
 	}
@@ -33,7 +37,8 @@ public:
 
 	void recieveSignal(int id, Node *sender) {
 		if(id == RESET_SECTION && sender == section) {
-			section->trigger = false;
+			section->triggers--;
+			section->trigger = section->triggers > 0;
 		}
 	}
 };
