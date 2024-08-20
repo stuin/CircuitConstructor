@@ -3,7 +3,7 @@
 #include "MovableBox.hpp"
 
 std::vector<std::string> miscLayout = {
-	"/controls/zoom_in", "/controls/zoom_out", "/controls/reset_room"
+	"/controls/zoom_in", "/controls/zoom_out", "/controls/reset_room", "/controls/menu"
 };
 
 class Player : public GravityNode {
@@ -12,6 +12,7 @@ class Player : public GravityNode {
 
 	const int scaleFactor = 3;
 	sf::Vector2f enterPoint = sf::Vector2f(0,0);
+	sf::Vector2f startPoint = sf::Vector2f(0,0);
 
 	sf::RectangleShape textShape;
 	sf::Text text;
@@ -49,6 +50,8 @@ public:
 			else if(i == 2) {
 				_player->setPosition(_player->enterPoint);
 				UpdateList::sendSignal(BOX, RESET_SECTION, _player->section);
+			} else if(i == 3) {
+				UpdateList::sendSignal(MENU, TOGGLE_MENU, _player->section);
 			}
 		};
 		camera = new Node(INPUT, sf::Vector2i(450, 250), true, this);
@@ -65,6 +68,16 @@ public:
 	}
 
 	void update(double time) {
+		if(startPoint == sf::Vector2f(0,0)) {
+			startPoint = getPosition();
+			if(Settings::getBool("/save/active")) {
+				sf::Vector2f target = sf::Vector2f(0,0);
+				target.x = Settings::getInt("/save/x");
+				target.y = Settings::getInt("/save/y");
+				setPosition(target);
+			}
+		}
+
 		sf::Vector2f velocity = gravityVelocity(moveInput.getDirection() * 320.0f, time);
 		setPosition(getPosition() + velocity);
 
@@ -133,5 +146,24 @@ public:
 			}
 		} else
 			addCollision((GravityNode*)other);
+	}
+
+	void recieveSignal(int id, Node *sender) {
+		if(id == RESET_GAME)
+			setPosition(startPoint);
+		else if(id == SAVE_GAME) {
+			if(section->id != 0) {
+				Settings::setBool("/save/active", true);
+				Settings::setInt("/save/section", section->id);
+				Settings::setInt("/save/x", getPosition().x);
+				Settings::setInt("/save/y", getPosition().y);
+			} else {
+				Settings::setBool("/save/active", false);
+				Settings::setInt("/save/section", 0);
+				Settings::setInt("/save/x", 0);
+				Settings::setInt("/save/y", 0);
+			}
+			Settings::save("res/settings.json");
+		}
 	}
 };

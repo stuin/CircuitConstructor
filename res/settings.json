@@ -1,17 +1,24 @@
 {
-	"movement": {
-		"up": "W",
-		"down": "R",
-		"left": "A",
-		"right": "S",
-		"up&1": "SPACE",
-		"joystick": 1
-	},
-	"controls": {
-		"zoom_in": "WHEELUP",
-		"zoom_out": "WHEELDOWN",
-		"reset_room": "P"
-	},
-	"debug_sections": false,
-	"debug_block_rotation": false
+    "controls": {
+        "menu": "ESCAPE",
+        "reset_room": "P",
+        "zoom_in": "WHEELUP",
+        "zoom_out": "WHEELDOWN"
+    },
+    "debug_block_rotation": false,
+    "debug_sections": false,
+    "movement": {
+        "down": "R",
+        "joystick": 1,
+        "left": "A",
+        "right": "S",
+        "up": "W",
+        "up&1": "SPACE"
+    },
+    "save": {
+        "active": false,
+        "section": 0,
+        "x": 0,
+        "y": 0
+    }
 }

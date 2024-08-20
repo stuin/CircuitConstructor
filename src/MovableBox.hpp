@@ -70,5 +70,7 @@ public:
 	void recieveSignal(int id, Node *sender) {
 		if(id == RESET_SECTION && (sender == section || sender == mainSection))
 			setPosition(startPosition);
+		else if(id == RESET_GAME)
+			setPosition(startPosition);
 	}
 };

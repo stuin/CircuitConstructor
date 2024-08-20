@@ -10,16 +10,20 @@ enum CollisionLayer {
 	BUTTON,
 	BOX,
 	PLAYER,
-	SIGN,
-	FOREGROUND,
-	TEXT,
 	SECTION,
+	SIGN,
 	INPUT,
-	TITLE
+	TEXT,
+	FOREGROUND,
+	MENU,
+	MENUBUTTON
 };
 
 enum Signals {
-	RESET_SECTION
+	RESET_SECTION,
+	RESET_GAME,
+	TOGGLE_MENU,
+	SAVE_GAME
 };
 
 enum TileType {

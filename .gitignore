@@ -2,6 +2,7 @@
 *.o
 *.exe
 *.out
+*.dll
 
 *.zip
 *.cache

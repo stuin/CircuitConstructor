@@ -9,7 +9,14 @@
 	"controls": {
 		"zoom_in": "WHEELUP",
 		"zoom_out": "WHEELDOWN",
-		"reset_room": "R"
+		"reset_room": "R",
+		"menu": "ESCAPE"
+	},
+	"save": {
+		"active": false,
+		"section": 0,
+		"x": 0,
+		"y": 0
 	},
 	"debug_sections": false,
 	"debug_block_rotation": false

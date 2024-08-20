@@ -1,12 +1,14 @@
 //SFML headers
 #include <SFML/System.hpp>
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio/Music.hpp>
 #include <cstdlib>
 
 #include "GridManager.h"
 #include "indexes.h"
 #include "Player.hpp"
 #include "Button.hpp"
+#include "Menu.hpp"
 
 int main() {
 	std::srand(7802);
@@ -22,6 +24,7 @@ int main() {
 	sf::Texture playerTexture;
 	sf::Texture blocksTexture;
 	sf::Texture backgroundTexture;
+	sf::Texture menuButtonsTexture;
 	UpdateList::loadTexture(&worldTexture, "res/world_tiles.png");
 	UpdateList::loadTexture(&decorTexture, "res/decor_tiles.png");
 	UpdateList::loadTexture(&treeTexture, "res/trees.png");
@@ -29,9 +32,10 @@ int main() {
 	UpdateList::loadTexture(&playerTexture, "res/character.png");
 	UpdateList::loadTexture(&blocksTexture, "res/blocks.png");
 	UpdateList::loadTexture(&backgroundTexture, "res/background.png");
+	UpdateList::loadTexture(&menuButtonsTexture, "res/menu_buttons.png");
 
 	sf::Font font;
-	font.loadFromFile("res/Goudy Mediaeval Regular.ttf");
+	font.loadFromFile("res/goudy_mediaeval_regular.ttf");
 
 	//Load background
 	Node background(BACKGROUND, sf::Vector2i(1920, 1080));
@@ -57,14 +61,15 @@ int main() {
 	//Generate tree+decor maps
 	GridMaker treeGrid(worldGrid.width, worldGrid.height);
 	GridMaker decorGrid(worldGrid.width, worldGrid.height);
-	GridMaker foregroundGrid(worldGrid.width/4, worldGrid.height/4);
+	//GridMaker foregroundGrid(worldGrid.width/4, worldGrid.height/4);
 	Indexer growthMap(worldGrid.grid, treeGrowIndex, NONE);
+
 	int x = std::rand() / ((RAND_MAX + 1u) / 3);
 	while(x < worldGrid.width) {
 		int y = 0;
 		bool wide = true;
-		while(y < worldGrid.height && growthMap.getTile(sf::Vector2f(x,y)) == EMPTY) {
-			if(growthMap.getTile(sf::Vector2f(x+1,y)) != EMPTY)
+		while(y < worldGrid.height && growthMap.getTile(sf::Vector2f(x,y)) == TREEEMPTY) {
+			if(growthMap.getTile(sf::Vector2f(x+1,y)) != TREEEMPTY)
 				wide = false;
 			y += 1;
 		}
@@ -103,7 +108,7 @@ int main() {
 
 		x += 2 + std::rand() / ((RAND_MAX + 1u) / 3);
 	}
-	x = std::min(x, worldGrid.width);
+	/*x = std::min(x, worldGrid.width);
 	x = (int)(x/4)*4;
 	while(x > 0) {
 		int y = worldGrid.height;
@@ -131,7 +136,7 @@ int main() {
 		}
 
 		x -= 4 + std::rand() / ((RAND_MAX + 1u) / 4) * 4;
-	}
+	}*/
 
 	//Render decor map
 	Indexer decor(&decorGrid, decorDisplayIndex, -1);
@@ -141,9 +146,9 @@ int main() {
 	UpdateList::addNodes(decorMap.getNodes());
 
 	//Render forground map
-	Indexer foreground(&foregroundGrid, foregroundDisplayIndex, -1);
-	display.addRandomizer(&foregroundRandomIndex);
-	LargeTileMap foregroundMap(&foregroundTexture, 256, 256, &foreground, FOREGROUND);
+	//Indexer foreground(&foregroundGrid, foregroundDisplayIndex, -1);
+	//display.addRandomizer(&foregroundRandomIndex);
+	//LargeTileMap foregroundMap(&foregroundTexture, 256, 256, &foreground, FOREGROUND);
 	//UpdateList::addNodes(foregroundMap.getNodes());
 
 	//Player
@@ -169,7 +174,7 @@ int main() {
 		else if(s == 't')
 			treeGrid.setTile(pos.x / 64, pos.y / 64, 4);
 		else if(c == '>' || s == '>' || c == '<' || s == '<' || c == 'f' || s == 'f') {
-			Node *sign = new Node(SIGN);
+			Node *sign = new Node(SIGN, sf::Vector2i(64, 64));
 			sign->setPosition(pos + sf::Vector2f(32, 32));
 			UpdateList::addNode(sign);
 		}
@@ -179,10 +184,21 @@ int main() {
 	LargeTileMap treeMap(&treeTexture, 64, 64, new Indexer(&treeGrid, treeDisplayIndex, -1), TREEMAP);
 	UpdateList::addNodes(treeMap.getNodes());
 
+	Menu menu(&menuButtonsTexture, &player);
+
 	//Finish engine setup
-	UpdateList::staticLayer(MAP);
 	UpdateList::staticLayer(PLAYER);
 	UpdateList::staticLayer(INPUT);
+	UpdateList::staticLayer(TEXT);
+	UpdateList::staticLayer(MENU);
+	UpdateList::staticLayer(MENUBUTTON);
+
+	//Start music
+	sf::Music music;
+	if (!music.openFromFile("res/snow_game_jam.mp3"))
+	    return -1;
+	music.setLoop(true);
+	music.play();
 
 	UpdateList::startEngine("Climbing Blocks");
 	return 0;
