@@ -67,7 +67,8 @@
 			"id": 50,
 			"file": "res/puzzles/climbing1_door.txt",
 			"up": 55,
-			"y_offset": -2
+			"y_offset": -2,
+			"zoom": 3.0
 		},
 		{
 			"id": 55,
@@ -102,13 +103,13 @@
 		{
 			"id": 56,
 			"file": "res/world/plain1.txt",
-			"right": 60,
+			"right": 57,
 			"y_offset": 1
 		},
 		{
 			"id": 57,
-			"file": "res/puzzles/weight3_ceiling.txt1",
-			"right": 60,
+			"file": "res/ice_expansion/weight3_ceiling2.txt",
+			"right": 100,
 			"y_offset": -5
 		},
 		{
@@ -124,6 +125,33 @@
 			"file": "res/world/peak.txt",
 			"y_offset": -9,
 			"zoom": 15.0,
+			"tile_offset": 100,
+			"sign_text": "You reached the peak!"
+		},
+		{
+			"id": 100,
+			"file": "res/ice_expansion/transition1.txt",
+			"up": 101,
+			"y_offset": 3,
+			"zoom": 3.0
+		},
+		{
+			"id": 101,
+			"file": "res/ice_expansion/transition2.txt",
+			"right": 102,
+			"tile_offset": 100
+		},
+		{
+			"id": 102,
+			"file": "res/ice_expansion/metal1_stacking.txt",
+			"right": 103,
+			"tile_offset": 100
+		},
+		{
+			"id": 103,
+			"file": "res/ice_expansion/platforms1.txt",
+			"right": 60,
+			"y_offset": -4,
 			"tile_offset": 100
 		}
 	]

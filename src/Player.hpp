@@ -72,7 +72,9 @@ public:
 
 		Player *_player = this;
 		miscInput.pressedFunc = [_player](int i) {
-			if(i == 2) {
+			if(i < 2) {
+				_player->zoomTarget = std::clamp(2.0, _player->zoomTarget + 0.2 * (i ? 1 : -1), 300.0);
+			} else if(i == 2) {
 				_player->setPosition(_player->enterPoint);
 				UpdateList::sendSignal(BOX, RESET_SECTION, _player->section);
 			} else if(i == 3) {
@@ -206,7 +208,7 @@ public:
 				}
 			}
 		} else if(other->getLayer() == SIGN) {
-			if(section != NULL) {
+			if(section != NULL && section->signText != "") {
 				text.setString(section->signText);
 				//text.setPosition(sf::Vector2f(-16 * section->signText.length(), 32));
 				textShape.setSize(sf::Vector2f(10 * section->signText.length(), 38));

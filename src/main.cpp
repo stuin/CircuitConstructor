@@ -4,8 +4,6 @@
 #include <SFML/Audio/Music.hpp>
 #include <cstdlib>
 
-#include "Skyrmion/AnimatedNode.hpp"
-
 #include "GridManager.h"
 #include "indexes.h"
 #include "Player.hpp"
@@ -26,6 +24,7 @@ int main() {
 	sf::Texture blocksTexture;
 	sf::Texture flagTexture;
 	sf::Texture yetiTexture;
+	sf::Texture tentTexture;
 	sf::Texture menuButtonsTexture;
 	UpdateList::loadTexture(&worldTexture, "res/textures/world_tiles.png");
 	UpdateList::loadTexture(&decorTexture, "res/textures/decor_tiles.png");
@@ -34,6 +33,7 @@ int main() {
 	UpdateList::loadTexture(&blocksTexture, "res/textures/blocks.png");
 	UpdateList::loadTexture(&flagTexture, "res/textures/flag.png");
 	UpdateList::loadTexture(&yetiTexture, "res/textures/sleeping_yeti.png");
+	UpdateList::loadTexture(&tentTexture, "res/textures/tent.png");
 	UpdateList::loadTexture(&menuButtonsTexture, "res/textures/menu_buttons.png");
 
 	sf::Texture backgroundTexture1;
@@ -93,12 +93,12 @@ int main() {
 			y += 1;
 		}
 
-		int r = std::rand() / ((RAND_MAX + 1u) / 6);
+		int r = std::rand() / ((RAND_MAX + 1u) / 8);
 		int t = growthMap.getTile(sf::Vector2f(x,y));
 		int o = (t == SNOWTREE) ? 1 : 0;
 		if(t == ROCK || t == SNOWROCK)
 			decorGrid.setTile(x, y-1, 'r'+(t == SNOWROCK) ? SNOW_OFFSET : 0);
-		else if((t == TREE || t == SNOWTREE) && r < 3) {
+		else if((t == TREE || t == SNOWTREE) && r < 4) {
 			switch(r) {
 			case 0:
 				decorGrid.setTile(x, y-1, 'f'+o*SNOW_OFFSET);
@@ -114,11 +114,14 @@ int main() {
 					treeGrid.setTile(x,   y-2, 32+o);
 					treeGrid.setTile(x+1, y-2, 33+o);
 				} else
-					decorGrid.setTile(x, y-1, 'b'+o*SNOW_OFFSET);
+					decorGrid.setTile(x, y-1, 'r'+o*SNOW_OFFSET);
+				break;
+			case 3:
+				decorGrid.setTile(x, y-1, 'b'+o*SNOW_OFFSET);
 				break;
 			}
 		} else if(wide && (t == TREE || t == SNOWTREE) && growthMap.getTile(sf::Vector2f(x+1,y)) == t) {
-			o *= 10;
+			o = (r > 6) ? 10 : 0;
 			treeGrid.setTile(x,   y-1, 10+o);
 			treeGrid.setTile(x+1, y-1, 11+o);
 			treeGrid.setTile(x,   y-2, 12+o);
@@ -134,10 +137,15 @@ int main() {
 
 	//Render decor map
 	Indexer decor(&decorGrid, decorDisplayIndex, -1);
-	display.addRandomizer(&decorRandomIndex);
+	decor.addRandomizer(&decorRandomIndex);
 	LargeTileMap decorMap(&decorTexture, 32, 32, &decor, TREEMAP);
 	decorMap.setScales(sf::Vector2f(2, 2));
 	UpdateList::addNodes(decorMap.getNodes());
+
+	//Render tree map
+	LargeTileMap treeMap(&treeTexture, 64, 64, new Indexer(&treeGrid, treeDisplayIndex, -1), TREEMAP);
+	UpdateList::addNodes(treeMap.getNodes());
+
 	//Player
 	Player player(collisionMap, frictionMap, &font);
 	player.setTexture(playerTexture);
@@ -149,7 +157,7 @@ int main() {
 	UpdateList::addNode(&player);
 
 	//Place player and boxes
-	collisionMap.mapGrid([&player, &blocksTexture, &flagTexture, &yetiTexture, &collisionMap, &frictionMap, &treeGrid](uint c, sf::Vector2f pos) {
+	collisionMap.mapGrid([&player, &blocksTexture, &flagTexture, &yetiTexture, &tentTexture, &collisionMap, &frictionMap, &treeGrid](uint c, sf::Vector2f pos) {
 		uint s = c - SNOW_OFFSET;
 		if(c == 'P' && player.getPosition() == sf::Vector2f(0,0))
 			player.setPosition(pos + sf::Vector2f(32, 16));
@@ -160,7 +168,7 @@ int main() {
 		else if(c == ',' || s == ',')
 			new Button(pos + sf::Vector2f(32, 60), true);
 		else if(c == 'f' || s == 'f') {
-			AnimatedNode *flag = new AnimatedNode(flagTexture, 6, 0.1, ANIMATED, sf::Vector2i(30, 45));
+			AnimatedNode *flag = new AnimatedNode(flagTexture, 6, 0.1, SIGN, sf::Vector2i(30, 45));
 			flag->setPosition(pos + sf::Vector2f(32, 18));
 			flag->setScale(sf::Vector2f(2, 2));
 			UpdateList::addNode(flag);
@@ -169,34 +177,19 @@ int main() {
 			yeti->setPosition(pos + sf::Vector2f(16, 16));
 			yeti->setScale(sf::Vector2f(2, 2));
 			UpdateList::addNode(yeti);
-		} else if(c == 't') {
-			if(treeGrid.getTile(pos.x / 64+1, pos.y / 64) != ' ') {
-				treeGrid.setTile(pos.x / 64+2, pos.y / 64, ' ');
-				treeGrid.setTile(pos.x / 64+2, pos.y / 64-1, ' ');
-			}
-			if(treeGrid.getTile(pos.x / 64, pos.y / 64) != ' ') {
-				treeGrid.setTile(pos.x / 64-1, pos.y / 64, ' ');
-				treeGrid.setTile(pos.x / 64-1, pos.y / 64-1, ' ');
-			}
-			treeGrid.setTile(pos.x / 64,   pos.y / 64, 50);
-			treeGrid.setTile(pos.x / 64+1, pos.y / 64, 51);
-			treeGrid.setTile(pos.x / 64,   pos.y / 64-1, 52);
-			treeGrid.setTile(pos.x / 64+1, pos.y / 64-1, 53);
-		} else if(s == 't') {
-			treeGrid.setTile(pos.x / 64,   pos.y / 64, 60);
-			treeGrid.setTile(pos.x / 64+1, pos.y / 64, 61);
-			treeGrid.setTile(pos.x / 64,   pos.y / 64-1, 62);
-			treeGrid.setTile(pos.x / 64+1, pos.y / 64-1, 63);
+		} else if(c == 't' || s == 't') {
+			Node *tent = new Node(ANIMATED, sf::Vector2i(63, 37));
+			tent->setPosition(pos + sf::Vector2f(16, 7));
+			tent->setScale(sf::Vector2f(3, 3));
+			tent->setTexture(tentTexture);
+			tent->setTextureRect(sf::IntRect(0, (s == 't') ? 37 : 0, 63, 37));
+			UpdateList::addNode(tent);
 		} else if(c == '>' || s == '>' || c == '<' || s == '<' || c == 'f' || s == 'f') {
 			Node *sign = new Node(SIGN, sf::Vector2i(64, 64));
 			sign->setPosition(pos + sf::Vector2f(32, 32));
 			UpdateList::addNode(sign);
 		}
 	});
-
-	//Render tree map
-	LargeTileMap treeMap(&treeTexture, 64, 64, new Indexer(&treeGrid, treeDisplayIndex, -1), TREEMAP);
-	UpdateList::addNodes(treeMap.getNodes());
 
 	Menu menu(&menuButtonsTexture, &player);
 
