@@ -1,14 +1,16 @@
 #include "GravityNode.hpp"
 
 class MovableBox : public GravityNode {
-	sf::Vector2f pushDirection = sf::Vector2f(0,0);
+	Indexer *collisionOn;
+	Indexer *collisionOff;
 	sf::Vector2f startPosition;
+	sf::Vector2f pushDirection = sf::Vector2f(0,0);
 
 	GridSection *mainSection = NULL;
 
 public:
-	MovableBox(Indexer _collision, Indexer _friction, uint c, sf::Vector2f _startPosition, sf::Texture *blockTexture) :
-	GravityNode(_collision, _friction, BOX, sf::Vector2i(16, 16)), startPosition(_startPosition) {
+	MovableBox(Indexer *_collisionOn, Indexer *_collisionOff, Indexer *_friction, uint c, sf::Vector2f _startPosition, sf::Texture *blockTexture) :
+	GravityNode(_collisionOff, _friction, BOX, sf::Vector2i(16, 16)), collisionOn(_collisionOn), collisionOff(_collisionOff), startPosition(_startPosition) {
 		setPosition(startPosition);
 		setScale(sf::Vector2f(3, 3));
 		setTexture(*blockTexture);
@@ -42,14 +44,17 @@ public:
 	}
 
 	void update(double time) {
+		bool tempPlatforms = section != NULL && (section->trigger != section->invertTrigger);
+		collision = tempPlatforms ? collisionOn : collisionOff;
+	
 		sf::Vector2f velocity = gravityVelocity(pushDirection * 20.0f, time);
 		setPosition(getPosition() + velocity);
 
 		if(!Settings::getBool("/debug_block_rotation")) {
-			int floor = collision.getTile(getPosition() + sf::Vector2f(0, getSize().x/2+4));
-			if(floor == SLOPELEFT)
+			int floor = collision->getTile(getPosition() + sf::Vector2f(0, getSize().x/2+4));
+			if(floor == SLOPE_UPLEFT)
 				setRotation(-45);
-			else if(floor == SLOPERIGHT)
+			else if(floor == SLOPE_UPRIGHT)
 				setRotation(45);
 			else
 				setRotation(0);

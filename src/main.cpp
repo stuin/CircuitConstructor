@@ -4,6 +4,9 @@
 #include <SFML/Audio/Music.hpp>
 #include <cstdlib>
 
+#include "Skyrmion/tiling/TileFilters.hpp"
+#include "Skyrmion/input/MovementFunctions.hpp"
+
 #include "GridManager.h"
 #include "indexes.h"
 #include "Player.hpp"
@@ -64,24 +67,27 @@ int main() {
 
 	//Load base tile maps
 	GridManager worldGrid("res/world.json", SECTION, sf::Vector2i(64, 64));
-	Indexer display(worldGrid.grid, displayIndex, -1);
-	display.addRandomizer(&randomizerIndex);
+	MapIndexer display(worldGrid.grid, displayIndex, -1);
+	//RandomIndexer display(new MapIndexer(worldGrid.grid, displayIndex, -1), randomizerIndex, -1);
 	LargeTileMap world(&worldTexture, 32, 32, &display, MAP);
-	world.setScales(sf::Vector2f(2, 2));
+	world.setScale(sf::Vector2f(2, 2));
 	UpdateList::addNodes(worldGrid.getNodes());
 	UpdateList::addNodes(world.getNodes());
 
 	//Secondary maps
-	Indexer collisionMap(worldGrid.grid, collisionIndex, EMPTY, 64, 64);
-	Indexer frictionMap(worldGrid.grid, frictionIndex, 100, 64, 64);
-	LargeTileMap tempMap(&worldTexture, 32, 32, new Indexer(worldGrid.grid, tempDisplayIndex, -1), TEMPMAP);
-	tempMap.setScales(sf::Vector2f(2, 2));
+	MapIndexer *collisionMapOff = new MapIndexer(worldGrid.grid, collisionIndexOff, EMPTY, 64, 64);
+	MapIndexer *collisionMapOn = new MapIndexer(worldGrid.grid, collisionIndexOn, EMPTY, 64, 64);
+	MapIndexer *frictionMap = new MapIndexer(worldGrid.grid, frictionIndex, 100, 64, 64);
+	LargeTileMap tempMap(&worldTexture, 32, 32, new MapIndexer(worldGrid.grid, tempDisplayIndex, -1), TEMPMAP);
+	tempMap.setScale(sf::Vector2f(2, 2));
 	UpdateList::addNodes(tempMap.getNodes());
 
 	//Generate tree+decor maps
 	GridMaker treeGrid(worldGrid.width, worldGrid.height);
 	GridMaker decorGrid(worldGrid.width, worldGrid.height);
-	Indexer growthMap(worldGrid.grid, treeGrowIndex, NONE);
+	MapIndexer growthMap(worldGrid.grid, treeGrowIndex, NONE);
+
+	//std::cout << EMPTY << FULL << SLOPE_UPLEFT << SLOPE_UPRIGHT << ONEWAY_UP << "\n";
 
 	int x = std::rand() / ((RAND_MAX + 1u) / 3);
 	while(x < worldGrid.width) {
@@ -97,57 +103,56 @@ int main() {
 		int t = growthMap.getTile(sf::Vector2f(x,y));
 		int o = (t == SNOWTREE) ? 1 : 0;
 		if(t == ROCK || t == SNOWROCK)
-			decorGrid.setTile(x, y-1, 'r'+(t == SNOWROCK) ? SNOW_OFFSET : 0);
+			decorGrid.setTile(sf::Vector2f(x, y-1), 'r'+(t == SNOWROCK) ? SNOW_OFFSET : 0);
 		else if((t == TREE || t == SNOWTREE) && r < 4) {
 			switch(r) {
 			case 0:
-				decorGrid.setTile(x, y-1, 'f'+o*SNOW_OFFSET);
+				decorGrid.setTile(sf::Vector2f(x, y-1), 'f'+o*SNOW_OFFSET);
 				break;
 			case 1:
-				decorGrid.setTile(x, y-1, o?'p'+SNOW_OFFSET : 'f');
+				decorGrid.setTile(sf::Vector2f(x, y-1), o?'p'+SNOW_OFFSET : 'f');
 				break;
 			case 2:
 				if(wide && growthMap.getTile(sf::Vector2f(x+1,y)) == t) {
 					o *= 10;
-					treeGrid.setTile(x,   y-1, 30+o);
-					treeGrid.setTile(x+1, y-1, 31+o);
-					treeGrid.setTile(x,   y-2, 32+o);
-					treeGrid.setTile(x+1, y-2, 33+o);
+					treeGrid.setTile(sf::Vector2f(x,   y-1), 30+o);
+					treeGrid.setTile(sf::Vector2f(x+1, y-1), 31+o);
+					treeGrid.setTile(sf::Vector2f(x,   y-2), 32+o);
+					treeGrid.setTile(sf::Vector2f(x+1, y-2), 33+o);
 				} else
-					decorGrid.setTile(x, y-1, 'r'+o*SNOW_OFFSET);
+					decorGrid.setTile(sf::Vector2f(x, y-1), 'r'+o*SNOW_OFFSET);
 				break;
 			case 3:
-				decorGrid.setTile(x, y-1, 'b'+o*SNOW_OFFSET);
+				decorGrid.setTile(sf::Vector2f(x, y-1), 'b'+o*SNOW_OFFSET);
 				break;
 			}
 		} else if(wide && (t == TREE || t == SNOWTREE) && growthMap.getTile(sf::Vector2f(x+1,y)) == t) {
 			o = (r > 6) ? 10 : 0;
-			treeGrid.setTile(x,   y-1, 10+o);
-			treeGrid.setTile(x+1, y-1, 11+o);
-			treeGrid.setTile(x,   y-2, 12+o);
-			treeGrid.setTile(x+1, y-2, 13+o);
-			treeGrid.setTile(x,   y-3, 14+o);
-			treeGrid.setTile(x+1, y-3, 15+o);
-			treeGrid.setTile(x,   y-4, 16+o);
-			treeGrid.setTile(x+1, y-4, 17+o);
+			treeGrid.setTile(sf::Vector2f(x,   y-1), 10+o);
+			treeGrid.setTile(sf::Vector2f(x+1, y-1), 11+o);
+			treeGrid.setTile(sf::Vector2f(x,   y-2), 12+o);
+			treeGrid.setTile(sf::Vector2f(x+1, y-2), 13+o);
+			treeGrid.setTile(sf::Vector2f(x,   y-3), 14+o);
+			treeGrid.setTile(sf::Vector2f(x+1, y-3), 15+o);
+			treeGrid.setTile(sf::Vector2f(x,   y-4), 16+o);
+			treeGrid.setTile(sf::Vector2f(x+1, y-4), 17+o);
 		}
 
 		x += 2 + std::rand() / ((RAND_MAX + 1u) / 3);
 	}
 
 	//Render decor map
-	Indexer decor(&decorGrid, decorDisplayIndex, -1);
-	decor.addRandomizer(&decorRandomIndex);
+	RandomIndexer decor(new MapIndexer(&decorGrid, decorDisplayIndex, -1), decorRandomIndex, -1);
 	LargeTileMap decorMap(&decorTexture, 32, 32, &decor, TREEMAP);
-	decorMap.setScales(sf::Vector2f(2, 2));
+	decorMap.setScale(sf::Vector2f(2, 2));
 	UpdateList::addNodes(decorMap.getNodes());
 
 	//Render tree map
-	LargeTileMap treeMap(&treeTexture, 64, 64, new Indexer(&treeGrid, treeDisplayIndex, -1), TREEMAP);
+	LargeTileMap treeMap(&treeTexture, 64, 64, new MapIndexer(&treeGrid, treeDisplayIndex, -1), TREEMAP);
 	UpdateList::addNodes(treeMap.getNodes());
 
 	//Player
-	Player player(collisionMap, frictionMap, &font);
+	Player player(collisionMapOn, collisionMapOff, frictionMap, &font);
 	player.setTexture(playerTexture);
 	player.setPosition(sf::Vector2f(0,0));
 	player.background1 = &background1;
@@ -157,12 +162,13 @@ int main() {
 	UpdateList::addNode(&player);
 
 	//Place player and boxes
-	collisionMap.mapGrid([&player, &blocksTexture, &flagTexture, &yetiTexture, &tentTexture, &collisionMap, &frictionMap, &treeGrid](uint c, sf::Vector2f pos) {
+	Indexer scaleMap(worldGrid.grid, ' ', sf::Vector2i(64, 64));
+	scaleMap.mapGrid([&player, &blocksTexture, &flagTexture, &yetiTexture, &tentTexture, &collisionMapOn, &collisionMapOff, &frictionMap, &treeGrid](uint c, sf::Vector2f pos) {
 		uint s = c - SNOW_OFFSET;
 		if(c == 'P' && player.getPosition() == sf::Vector2f(0,0))
 			player.setPosition(pos + sf::Vector2f(32, 16));
 		else if(c == 'w' || s == 'w' || c == 'g' || s == 'g' || c == 'i' || s == 'i' || c == 'm' || s == 'm')
-			new MovableBox(collisionMap, frictionMap, c, pos + sf::Vector2f(32, 16), &blocksTexture);
+			new MovableBox(collisionMapOn, collisionMapOff, frictionMap, c, pos + sf::Vector2f(32, 16), &blocksTexture);
 		else if(c == '_' || s == '_')
 			new Button(pos + sf::Vector2f(32, 60), false);
 		else if(c == ',' || s == ',')

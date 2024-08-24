@@ -1,4 +1,4 @@
-#include "Skyrmion/TileMap.hpp"
+#include "Skyrmion/tiling/TileMap.hpp"
 
 #define PUSHCOUNT 20
 
@@ -20,7 +20,7 @@ class GravityNode : public Node {
 	const bool showDebug = false;
 
 public:
-	Indexer collision;
+	Indexer *collision;
 	GridSection *section = NULL;
 	std::vector<GravityNode *> colliding;
 	bool blocked = false;
@@ -32,10 +32,10 @@ public:
 	float weight = 0;
 	float pushWeight = 0;
 
-	Indexer frictionMap;
+	Indexer *frictionMap;
 	float frictionValue = 1;
 
-	GravityNode(Indexer _collision, Indexer _friction, Layer layer, sf::Vector2i size) :
+	GravityNode(Indexer *_collision, Indexer *_friction, Layer layer, sf::Vector2i size) :
 	Node(layer, size), collision(_collision), frictionMap(_friction) {
 
 	}
@@ -50,57 +50,57 @@ public:
 		sf::Vector2f footR = foot + sf::Vector2f(getSize().x / 2, 0);
 		foot.y += 6;
 
-		if(!isPlayer && showDebug)
-			std::cout << velocity.x << "," << velocity.y << "> ";
+		if(isPlayer && showDebug)
+			std::cout << velocity.x << "," << velocity.y << ">1 ";
 
 		//Friction
-		float friction = (frictionMap.getTile(foot) / 100.0) * frictionValue;
+		float friction = (frictionMap->getTile(foot) / 100.0) * frictionValue;
 		friction = std::clamp(0.01f, friction, 1.0f);
-		if(friction < 1 && (collision.getTile(foot) != EMPTY ||
-			collision.getTile(footL) == SLOPELEFT || collision.getTile(footR) == SLOPERIGHT)) {
+		if(friction < 1 && (collision->getTile(foot) != EMPTY ||
+			collision->getTile(footL) == SLOPE_UPLEFT || collision->getTile(footR) == SLOPE_UPRIGHT)) {
 
 			velocity.x *= friction;
 			velocity.x += horizontalSpeed * (1.0 - friction/3) * time;
 
-			if((collision.getTile(footL) == SLOPELEFT || collision.getTile(foot) == SLOPELEFT) && velocity.x > -slideReverse) {
+			if((collision->getTile(footL) == SLOPE_UPLEFT || collision->getTile(foot) == SLOPE_UPLEFT) && velocity.x > -slideReverse) {
 				velocity.x += slideSpeed * (1 - friction) * std::min(pushWeight*2, 1.0f) * time;
 				velocity.x = std::min(velocity.x, (float)(slideMax * time));
 			}
-			if((collision.getTile(footR) == SLOPERIGHT || collision.getTile(foot) == SLOPERIGHT) && velocity.x < slideReverse) {
+			if((collision->getTile(footR) == SLOPE_UPRIGHT || collision->getTile(foot) == SLOPE_UPRIGHT) && velocity.x < slideReverse) {
 				velocity.x -= slideSpeed * (1 - friction) * std::min(pushWeight*2, 1.0f) * time;
 				velocity.x = std::max(velocity.x, -(float)(slideMax * time));
 			}
 		}
 
-		if(!isPlayer && showDebug)
-			std::cout << velocity.x << "," << velocity.y << "> ";
+		if(isPlayer && showDebug)
+			std::cout << velocity.x << "," << velocity.y << ">2 ";
 
 		//Check for wall
 		tempPlatforms = section != NULL && (section->trigger != section->invertTrigger);
 		sf::Vector2f collisionOffset = velocity + sf::Vector2f(velocity.x / std::abs(velocity.x) * getSize().x / 2, getSize().y / 4);
-		if(verticalSpeed != 0 || foot.y - 8 < collision.snapPosition(foot).y) {
-			if(collision.getTile(pos + collisionOffset) == FULL)
+		if(verticalSpeed != 0 || foot.y - 8 < collision->snapPosition(foot).y) {
+			if(collision->getTile(pos + collisionOffset) == FULL)
 				velocity.x = 0;
-			else if(collision.getTile(pos + collisionOffset) == TEMPFULL && tempPlatforms)
+			else if(velocity.x > 0 && collision->getTile(pos) != SLOPE_UPLEFT && collision->getTile(pos + collisionOffset) == SLOPE_UPLEFT)
 				velocity.x = 0;
-			else if(velocity.x > 0 && collision.getTile(pos) != SLOPELEFT && collision.getTile(pos + collisionOffset) == SLOPELEFT)
-				velocity.x = 0;
-			else if(velocity.x < 0 && collision.getTile(pos) != SLOPERIGHT && collision.getTile(pos + collisionOffset) == SLOPERIGHT)
+			else if(velocity.x < 0 && collision->getTile(pos) != SLOPE_UPRIGHT && collision->getTile(pos + collisionOffset) == SLOPE_UPRIGHT)
 				velocity.x = 0;
 		}
 
-		if(!isPlayer && showDebug)
-			std::cout << velocity.x << "," << velocity.y << "> ";
+		if(isPlayer && showDebug)
+			std::cout << velocity.x << "," << velocity.y << ">f ";
 
 		//Falling and jumping
 		foot += velocity;
 		footL = foot - sf::Vector2f(getSize().x / 4, 0);
 		footR = foot + sf::Vector2f(getSize().x / 4, 0);
-		int tileL = collision.getTile(footL);
-		int tileR = collision.getTile(footR);
-		if((tileL == EMPTY || (tileL == TEMPPLATFORM || tileL == TEMPFULL) && !tempPlatforms) &&
-			(tileR == EMPTY || (tileR == TEMPPLATFORM || tileR == TEMPFULL) && !tempPlatforms)) {
-
+		if(isPlayer && showDebug)
+			std::cout << foot.x-pos.x << "," << foot.y-pos.y << ">t ";
+		int tileL = collision->getTile(footL);
+		int tileR = collision->getTile(footR);
+		if(isPlayer && showDebug)
+			std::cout << tileL << "," << tileR << ":" << EMPTY << ">3 ";
+		if(tileL == EMPTY && tileR == EMPTY) {
 			if(jumpTime < 0.2 && jumpInput)
 				verticalSpeed -= jumpBoost;
 			else
@@ -108,9 +108,11 @@ public:
 			verticalSpeed = std::min(verticalSpeed, (float)fallMax);
 			velocity.y += verticalSpeed * time;
 
+			if(isPlayer && showDebug)
+				std::cout << velocity.x << "," << velocity.y << ">4 ";
+
 			//Ceiling check
-			if(collision.getTile(pos + velocity) != EMPTY && collision.getTile(pos + velocity) != PLATFORM
-				&& collision.getTile(pos + velocity) != TEMPPLATFORM) {
+			if(collision->getTile(pos + velocity) != EMPTY && collision->getTile(pos + velocity) != ONEWAY_UP) {
 				verticalSpeed = 0;
 				velocity.y = 0;
 				jumpTime += 0.2;
@@ -124,29 +126,28 @@ public:
 			velocity.y += verticalSpeed * time;
 		}
 
-		if(!isPlayer && showDebug)
-			std::cout << velocity.x << "," << velocity.y << "> ";
+		if(isPlayer && showDebug)
+			std::cout << velocity.x << "," << velocity.y << ">5 ";
 
 		//Snap to ground
-		int tile = collision.getTile(foot);
-		if(tile != EMPTY && !(jumpInput && jumpTime < 0.2) &&
-			((tile != TEMPPLATFORM && tile != TEMPFULL) || tempPlatforms)) {
+		int tile = collision->getTile(foot);
+		if(tile != EMPTY && !(jumpInput && jumpTime < 0.2)) {
 
-			sf::Vector2f ground = collision.snapPosition(foot);
+			sf::Vector2f ground = collision->snapPosition(foot);
 			sf::Vector2f foot2 = foot - sf::Vector2f(0, 8);
 
 			//Allow for upwards slope
-			if(tile != EMPTY && tile != SLOPELEFT && tile != SLOPERIGHT &&
-				(collision.getTile(foot2) == SLOPELEFT || collision.getTile(foot2) == SLOPERIGHT)) {
+			if(tile != EMPTY && tile != SLOPE_UPLEFT && tile != SLOPE_UPRIGHT &&
+				(collision->getTile(foot2) == SLOPE_UPLEFT || collision->getTile(foot2) == SLOPE_UPRIGHT)) {
 				foot = foot2;
-				ground = collision.snapPosition(foot);
+				ground = collision->snapPosition(foot);
 			}
 			velocity.y += ground.y - pos.y - getSize().y/2;
 
-			if(collision.getTile(foot) == SLOPELEFT)
+			if(collision->getTile(foot) == SLOPE_UPLEFT)
 				velocity.y -= ground.x - pos.x;
-			else if(collision.getTile(foot) == SLOPERIGHT)
-				velocity.y -= pos.x - ground.x - collision.getScale().x;
+			else if(collision->getTile(foot) == SLOPE_UPRIGHT)
+				velocity.y -= pos.x - ground.x - collision->getScale().x;
 
 			velocity.y = std::min(std::max((float)snapSpeed, verticalSpeed * (float)time), velocity.y);
 
@@ -156,8 +157,8 @@ public:
 			}
 		}
 
-		if(!isPlayer && showDebug)
-			std::cout << velocity.x << "," << velocity.y << "> ";
+		if(isPlayer && showDebug)
+			std::cout << velocity.x << "," << velocity.y << ">6 ";
 
 		pushing.clear();
 		pushWeight = 0;
@@ -196,8 +197,8 @@ public:
 				velocity.x = std::max(other->horizontalSpeed * (float)time, velocity.x);
 		}
 
-		if(!isPlayer && showDebug)
-			std::cout << velocity.x << "," << velocity.y << "\n";
+		if(isPlayer && showDebug)
+			std::cout << velocity.x << "," << velocity.y << ">7\n";
 
 		horizontalSpeed = velocity.x / time;
 		blocked = std::abs(input.x) > 0.1 && std::abs(velocity.x) < 0.1;

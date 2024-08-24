@@ -2,22 +2,15 @@
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
-#include "Skyrmion/GridMaker.h"
-#include "Skyrmion/VertexGraph.hpp"
-#include "Skyrmion/Settings.h"
+#include "Skyrmion/tiling/GridMaker.h"
+#include "Skyrmion/util/VertexGraph.hpp"
+#include "Skyrmion/input/Settings.h"
 #include "Skyrmion/Node.h"
 #include "indexes.h"
 
-enum sides {
-	UP,
-	RIGHT,
-	DOWN,
-	LEFT
-};
-
 class GridSection : public Vertex<4>, public DrawNode {
 public:
-	int id;
+	sint id;
 	std::string file;
 	int tileOffset = 0;
 
@@ -25,10 +18,10 @@ public:
 	bool grabCamera = false;
 	float zoomLevel = 0;
 
-	int upId = 0;
-	int rightId = 0;
-	int downId = 0;
-	int leftId = 0;
+	sint upId = 0;
+	sint rightId = 0;
+	sint downId = 0;
+	sint leftId = 0;
 
 	int width = 0;
 	int height = 0;
@@ -44,7 +37,7 @@ public:
 
 	GridSection(GridSection *root, json data, Layer layer) : Vertex(root), DrawNode(rect, layer) {
 
-		id = data.value("id", -1);
+		id = data.value("id", 0);
 		file = data.value("file", "");
 		tileOffset = data.value("tile_offset", 0);
 		invertTrigger = data.value("invert_trigger", false);
@@ -115,11 +108,11 @@ public:
 		height = root->height;
 
 		GridSection *next;
-		for(int i = 1; i < world["maps"].size(); i++) {
+		for(sint i = 1; i < world["maps"].size(); i++) {
 			next = new GridSection(root, world["maps"][i], _layer);
 			int id = world["maps"][i].value("id", -1);
 
-			for(int j = sections.size() - 1; j < id; j++)
+			for(sint j = sections.size() - 1; j < id; j++)
 				sections.push_back(NULL);
 
 			if(id < 0)
@@ -146,7 +139,7 @@ public:
 
 				//std::cout << next->file << " " << next->tileOffset << "\n";
 				//std::cout << next->x << "," << next->y << "," << next->width << "," << next->height << "\n";
-				grid->reload(next->file, next->tileOffset, sf::Rect<uint>(next->x, next->y, next->width, next->height));
+				grid->reload(next->file, next->tileOffset, sf::Rect<int>(next->x, next->y, next->width, next->height));
 			}
 		}
 		//grid->printGrid();

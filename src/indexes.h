@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Skyrmion/GridMaker.h"
+#include "Skyrmion/input/MovementEnums.h"
 
 enum CollisionLayer {
 	BACKGROUND,
@@ -27,16 +27,6 @@ enum Signals {
 	SAVE_GAME
 };
 
-enum TileType {
-	EMPTY,
-	FULL,
-	PLATFORM,
-	SLOPELEFT,
-	SLOPERIGHT,
-	TEMPPLATFORM,
-	TEMPFULL
-};
-
 enum GrowthType {
 	TREEEMPTY,
 	NONE,
@@ -48,7 +38,7 @@ enum GrowthType {
 
 #define SNOW_OFFSET 100
 
-static const std::map<unsigned int, int> displayIndex = {
+static const std::map<int, int> displayIndex = {
 	{' ', -1},
 	{'/', 8},
 	{'-', 0},
@@ -103,7 +93,7 @@ static const std::map<unsigned int, int> displayIndex = {
 	{'^'+SNOW_OFFSET, 5+24},
 };
 
-static const std::map<unsigned int, int> randomizerIndex = {
+static const std::map<int, int> randomizerIndex = {
 	{'/', 2},
 	{'-', 4},
 	{'\\', 2},
@@ -120,13 +110,13 @@ static const std::map<unsigned int, int> randomizerIndex = {
 	{']'+SNOW_OFFSET, 2}
 };
 
-static const std::map<unsigned int, int> collisionIndex = {
+static const std::map<int, int> collisionIndexOff = {
 	{' ', EMPTY},
-	{'/', SLOPERIGHT},
+	{'/', SLOPE_UPRIGHT},
 	{'-', FULL},
-	{'\\', SLOPELEFT},
+	{'\\', SLOPE_UPLEFT},
 	{'#',  FULL},
-	{'\'', PLATFORM},
+	{'\'', ONEWAY_UP},
 	{'y',  FULL},
 	{'Y',  FULL},
 	{'[', FULL},
@@ -136,24 +126,22 @@ static const std::map<unsigned int, int> collisionIndex = {
 	{'{', FULL},
 	{'=', FULL},
 	{'}', FULL},
-	{'(', PLATFORM},
-	{'u', PLATFORM},
-	{')', PLATFORM},
-	{'"', PLATFORM},
+	{'(', ONEWAY_UP},
+	{'u', ONEWAY_UP},
+	{')', ONEWAY_UP},
+	{'"', ONEWAY_UP},
 	{'t', FULL},
 	{'?', FULL},
-	{'~', TEMPPLATFORM},
-	{'%', TEMPFULL},
-	{'T', PLATFORM},
+	{'T', ONEWAY_UP},
 	{'_', EMPTY},
 	{',', EMPTY},
-	{'H', PLATFORM},
+	{'H', ONEWAY_UP},
 	{' '+SNOW_OFFSET, EMPTY},
-	{'/'+SNOW_OFFSET, SLOPERIGHT},
+	{'/'+SNOW_OFFSET, SLOPE_UPRIGHT},
 	{'-'+SNOW_OFFSET, FULL},
-	{'\\'+SNOW_OFFSET, SLOPELEFT},
+	{'\\'+SNOW_OFFSET, SLOPE_UPLEFT},
 	{'#'+SNOW_OFFSET, FULL},
-	{'\''+SNOW_OFFSET, PLATFORM},
+	{'\''+SNOW_OFFSET, ONEWAY_UP},
 	{'y'+SNOW_OFFSET, FULL},
 	{'Y'+SNOW_OFFSET, FULL},
 	{'['+SNOW_OFFSET, FULL},
@@ -161,21 +149,27 @@ static const std::map<unsigned int, int> collisionIndex = {
 	{'{'+SNOW_OFFSET, FULL},
 	{'='+SNOW_OFFSET, FULL},
 	{'}'+SNOW_OFFSET, FULL},
-	{'('+SNOW_OFFSET, PLATFORM},
-	{'u'+SNOW_OFFSET, PLATFORM},
-	{')'+SNOW_OFFSET, PLATFORM},
-	{'"'+SNOW_OFFSET, PLATFORM},
+	{'('+SNOW_OFFSET, ONEWAY_UP},
+	{'u'+SNOW_OFFSET, ONEWAY_UP},
+	{')'+SNOW_OFFSET, ONEWAY_UP},
+	{'"'+SNOW_OFFSET, ONEWAY_UP},
 	{'t'+SNOW_OFFSET, FULL},
 	{'?'+SNOW_OFFSET, FULL},
-	{'~'+SNOW_OFFSET, TEMPPLATFORM},
-	{'%'+SNOW_OFFSET, TEMPFULL},
-	{'T'+SNOW_OFFSET, PLATFORM},
+	{'T'+SNOW_OFFSET, ONEWAY_UP},
 	{'_'+SNOW_OFFSET, EMPTY},
 	{','+SNOW_OFFSET, EMPTY},
-	{'H'+SNOW_OFFSET, PLATFORM}
+	{'H'+SNOW_OFFSET, ONEWAY_UP}
 };
 
-static const std::map<unsigned int, int> frictionIndex = {
+static const std::map<int, int> collisionIndexOnAdd = {
+	{'~', ONEWAY_UP},
+	{'%', FULL},
+	{'~'+SNOW_OFFSET, ONEWAY_UP},
+	{'%'+SNOW_OFFSET, FULL}
+};
+static std::map<int, int> collisionIndexOn = collisionIndexOff + collisionIndexOnAdd;
+
+static const std::map<int, int> frictionIndex = {
 	{' ', 100},
 	{'{', 15},
 	{'=', 15},
@@ -199,14 +193,14 @@ static const std::map<unsigned int, int> frictionIndex = {
 	{')'+SNOW_OFFSET, 15}
 };
 
-static const std::map<unsigned int, int> tempDisplayIndex = {
+static const std::map<int, int> tempDisplayIndex = {
 	{'~', 0+24},
 	{'%', 9+24},
 	{'~'+SNOW_OFFSET, 0+24},
 	{'%'+SNOW_OFFSET, 9+24}
 };
 
-static const std::map<unsigned int, int> treeGrowIndex = {
+static const std::map<int, int> treeGrowIndex = {
 	{' ', TREEEMPTY},
 	{'-', TREE},
 	{'[', TREE},
@@ -218,7 +212,7 @@ static const std::map<unsigned int, int> treeGrowIndex = {
 	{'#'+SNOW_OFFSET, SNOWROCK}
 };
 
-static const std::map<unsigned int, int> treeDisplayIndex = {
+static const std::map<int, int> treeDisplayIndex = {
 	{' ', -1},
 	{10, 14},
 	{11, 15},
@@ -246,7 +240,7 @@ static const std::map<unsigned int, int> treeDisplayIndex = {
 	{43, 17}
 };
 
-static const std::map<unsigned int, int> decorDisplayIndex = {
+static const std::map<int, int> decorDisplayIndex = {
 	{' ', -1},
 	{'f', 0},
 	{'r', 4},
@@ -258,7 +252,7 @@ static const std::map<unsigned int, int> decorDisplayIndex = {
 	{'b'+SNOW_OFFSET, 14}
 };
 
-static const std::map<unsigned int, int> decorRandomIndex = {
+static const std::map<int, int> decorRandomIndex = {
 	{'f', 2},
 	{'r', 2},
 	{'p', 1},
@@ -269,7 +263,7 @@ static const std::map<unsigned int, int> decorRandomIndex = {
 	{'b'+SNOW_OFFSET, 1}
 };
 
-static const std::map<unsigned int, int> foregroundDisplayIndex = {
+static const std::map<int, int> foregroundDisplayIndex = {
 	{' ', -1},
 	{1, 0},
 	{2, 7},
@@ -279,7 +273,7 @@ static const std::map<unsigned int, int> foregroundDisplayIndex = {
 	{42, 6}
 };
 
-static const std::map<unsigned int, int> foregroundRandomIndex = {
+static const std::map<int, int> foregroundRandomIndex = {
 	{1, 4},
 	{2, 5}
 };

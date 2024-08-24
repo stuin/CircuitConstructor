@@ -1,5 +1,3 @@
-#include "Skyrmion/InputHandler.h"
-
 #include "MovableBox.hpp"
 
 std::vector<std::string> miscLayout = {
@@ -7,10 +5,12 @@ std::vector<std::string> miscLayout = {
 };
 
 class Player : public GravityNode {
+	Indexer *collisionOn;
+	Indexer *collisionOff;
 	DirectionHandler moveInput;
 	InputHandler miscInput;
 
-	const int scaleFactor = 3;
+	const float scaleFactor = 3;
 	sf::Vector2f enterPoint = sf::Vector2f(0,0);
 	sf::Vector2f startPoint = sf::Vector2f(0,0);
 
@@ -45,7 +45,8 @@ public:
 	Node *background3 = NULL;
 	Node *background4 = NULL;
 
-	Player(Indexer _collision, Indexer _friction, sf::Font *font) : GravityNode(_collision, _friction, PLAYER, sf::Vector2i(22, 29)),
+	Player(Indexer *_collisionOn, Indexer *_collisionOff, Indexer *_friction, sf::Font *font) :
+	GravityNode(_collisionOn, _friction, PLAYER, sf::Vector2i(22, 29)), collisionOn(_collisionOn), collisionOff(_collisionOff),
 		moveInput("/movement", INPUT, this), miscInput(miscLayout, INPUT, this) {
 
 		textShape.setFillColor(sf::Color(0,0,0,200));
@@ -55,7 +56,7 @@ public:
 		textBackground = new DrawNode(textShape, TEXT, sf::Vector2i(16, 16), this);
 		textBackground->setHidden();
 		textNode = new DrawNode(text, TEXT, sf::Vector2i(16, 16), textBackground);
-		textNode->setPosition(sf::Vector2f(8, 0));
+		textNode->setPosition(sf::Vector2f(14, 6));
 		UpdateList::addNode(textBackground);
 		UpdateList::addNode(textNode);
 
@@ -64,11 +65,11 @@ public:
 		maxFrames = 8;
 		delay = 0.1;
 
-		lowCorner = sf::Vector2f(0, _collision.getSize().y * _collision.getScale().y);
+		lowCorner = sf::Vector2f(0, _collisionOff->getSize().y * _collisionOff->getScale().y);
 		//lowCorner.y = std::max(lowCorner.y, 4096.0f);
-		highCorner = sf::Vector2f(_collision.getSize().x * _collision.getScale().x * 1.5, 0);
+		highCorner = sf::Vector2f(_collisionOff->getSize().x * _collisionOff->getScale().x * 1.5, 0);
 		center = sf::Vector2f(highCorner.x / 2, lowCorner.y / 2);
-		std::cout << _collision.getSize().x * _collision.getScale().x << "," << _collision.getSize().y * _collision.getScale().y << "\n";
+		std::cout << _collisionOff->getSize().x * _collisionOff->getScale().x << "," << _collisionOff->getSize().y * _collisionOff->getScale().y << "\n";
 
 		Player *_player = this;
 		miscInput.pressedFunc = [_player](int i) {
@@ -104,6 +105,9 @@ public:
 				setPosition(target);
 			}
 		}
+
+		bool tempPlatforms = section != NULL && (section->trigger != section->invertTrigger);
+		collision = tempPlatforms ? collisionOn : collisionOff;
 
 		sf::Vector2f input = moveInput.getDirection();
 		sf::Vector2f velocity = gravityVelocity(input * 320.0f, time);
@@ -150,8 +154,8 @@ public:
         }
 
 		//Slide camera
-		if(camera->getPosition() != sf::Vector2f(0,-64)) {
-			sf::Vector2f target = sf::Vector2f(0,-64) - camera->getPosition();
+		if(camera->getPosition() != sf::Vector2f(0,-64 / scaleFactor)) {
+			sf::Vector2f target = sf::Vector2f(0,-64 / scaleFactor) - camera->getPosition();
 			sf::Vector2f target2 = vectorLength(target, 400 * time);
 			if(std::abs(target.x) > std::abs(target2.x) && std::abs(target.x) > std::abs(target2.x))
 				target = target2;
@@ -213,7 +217,8 @@ public:
 				//text.setPosition(sf::Vector2f(-16 * section->signText.length(), 32));
 				textShape.setSize(sf::Vector2f(10 * section->signText.length(), 38));
 				textBackground->setHidden(false);
-				textBackground->setPosition(sf::Vector2f(-4.0 * section->signText.length(), -80));
+				textBackground->setScale(getInverseScale());
+				textBackground->setPosition(sf::Vector2f(-4.0 * section->signText.length(), -80) / getScale());
 				textVisible = true;
 			}
 		} else
