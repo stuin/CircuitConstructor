@@ -5,7 +5,6 @@
 #include <cstdlib>
 
 #include "Skyrmion/tiling/TileFilters.hpp"
-#include "Skyrmion/input/MovementFunctions.hpp"
 
 #include "GridManager.h"
 #include "indexes.h"

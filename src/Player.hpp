@@ -4,11 +4,17 @@ std::vector<std::string> miscLayout = {
 	"/controls/zoom_in", "/controls/zoom_out", "/controls/reset_room", "/controls/menu"
 };
 
-class Player : public GravityNode {
+class Player : public Node, public PhysicsObject {
 	Indexer *collisionOn;
 	Indexer *collisionOff;
 	DirectionHandler moveInput;
 	InputHandler miscInput;
+
+	Indexer *frictionMap;
+	float frictionValue = 1;
+	PersonalPhysicsStats *physics = new PersonalPhysicsStats();
+	GlobalPhysicsStats *globalPhysics = new GlobalPhysicsStats();
+	std::vector<PersonalPhysicsStats *> colliding;
 
 	const float scaleFactor = 3;
 	sf::Vector2f enterPoint = sf::Vector2f(0,0);
@@ -20,6 +26,7 @@ class Player : public GravityNode {
 	DrawNode *textNode;
 	bool textVisible = false;
 
+	GridSection *section = NULL;
 	bool lastTrigger = false;
 	bool triggerOverride = false;
 
@@ -46,8 +53,8 @@ public:
 	Node *background4 = NULL;
 
 	Player(Indexer *_collisionOn, Indexer *_collisionOff, Indexer *_friction, sf::Font *font) :
-	GravityNode(_collisionOn, _friction, PLAYER, sf::Vector2i(22, 29)), collisionOn(_collisionOn), collisionOff(_collisionOff),
-		moveInput("/movement", INPUT, this), miscInput(miscLayout, INPUT, this) {
+	Node(PLAYER, sf::Vector2i(22, 29)), collisionOn(_collisionOn), collisionOff(_collisionOff),
+		moveInput("/movement", INPUT, this), miscInput(miscLayout, INPUT, this), frictionMap(_friction) {
 
 		textShape.setFillColor(sf::Color(0,0,0,200));
 		text.setFont(*font);
@@ -86,9 +93,8 @@ public:
 		UpdateList::setCamera(_player->camera, sf::Vector2f(450, 250) * zoomLevel);
 
 		setScale(sf::Vector2f(scaleFactor, scaleFactor));
-		isPlayer = true;
-		snapSpeed = 6;
-		weight = 0.01;
+		physics->snapSpeed = 6;
+		physics->weight = 0.01;
 
 		collideWith(BOX);
 		collideWith(SECTION);
@@ -107,11 +113,17 @@ public:
 		}
 
 		bool tempPlatforms = section != NULL && (section->trigger != section->invertTrigger);
-		collision = tempPlatforms ? collisionOn : collisionOff;
+		Indexer *collision = tempPlatforms ? collisionOn : collisionOff;
 
 		sf::Vector2f input = moveInput.getDirection();
-		sf::Vector2f velocity = gravityVelocity(input * 320.0f, time);
+		bool jumpInput = input.y < -0.5;
+		sf::Vector2f velocity = sf::Vector2f(input.x * time * 320.0f, 0);
+		velocity = PlatformFrictionMovement(getPosition(), velocity, getSize(), time,
+			physics->previous, collision, frictionMap, frictionValue, globalPhysics);
+		velocity = PlatformGravityMovement(getPosition(), velocity, getSize(), time, jumpInput,
+			collision, globalPhysics, physics, colliding);
 		setPosition(getPosition() + velocity);
+		colliding.clear();
 
 		UpdateList::hideLayer(TEMPMAP, section == NULL || (!triggerOverride && section->trigger == section->invertTrigger));
 		if(section != NULL && section->hasButton)
@@ -221,8 +233,8 @@ public:
 				textBackground->setPosition(sf::Vector2f(-4.0 * section->signText.length(), -80) / getScale());
 				textVisible = true;
 			}
-		} else
-			addCollision((GravityNode*)other);
+		} else if(other->getLayer() == BOX)
+			colliding.push_back(dynamic_cast<PhysicsObject*>(other)->getPhysics());
 	}
 
 	void recieveSignal(int id, Node *sender) {
@@ -242,6 +254,10 @@ public:
 			}
 			Settings::save("res/settings.json");
 		}
+	}
+
+	PersonalPhysicsStats *getPhysics() override {
+		return physics;
 	}
 
 	float lerp(float a, float b, float f) {
